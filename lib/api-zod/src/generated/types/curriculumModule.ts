@@ -7,6 +7,7 @@
  */
 
 export interface CurriculumModule {
+  id: number;
   title: string;
   lessonsCount: number;
 }

@@ -20,3 +20,6 @@
 export * from "./categories";
 export * from "./courses";
 export * from "./testimonials";
+export * from "./auth";
+export * from "./lessons";
+export * from "./orders";

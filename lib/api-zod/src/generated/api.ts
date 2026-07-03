@@ -77,6 +77,7 @@ export const GetCourseResponse = zod.object({
   "description": zod.string(),
   "whatYouWillLearn": zod.array(zod.string()),
   "curriculum": zod.array(zod.object({
+  "id": zod.number(),
   "title": zod.string(),
   "lessonsCount": zod.number()
 }))
@@ -121,5 +122,239 @@ export const GetStatsSummaryResponse = zod.object({
   "averageRating": zod.number(),
   "expertInstructors": zod.number()
 })
+
+
+/**
+ * @summary Get the currently authenticated user
+ */
+export const GetCurrentAuthUserHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const GetCurrentAuthUserResponse = zod.object({
+  "user": zod.union([zod.object({
+  "id": zod.string(),
+  "email": zod.string().email().nullable(),
+  "firstName": zod.string().nullable(),
+  "lastName": zod.string().nullable(),
+  "profileImageUrl": zod.string().nullable(),
+  "role": zod.string()
+}),zod.null()])
+})
+
+
+/**
+ * @summary Start the browser OIDC login flow
+ */
+export const BeginBrowserLoginQueryParams = zod.object({
+  "returnTo": zod.coerce.string().optional().describe('Relative path to redirect to after login (must start with `\/`). Defaults to `\/`.')
+})
+
+export const BeginBrowserLoginResponse = zod.void()
+
+
+/**
+ * @summary Complete the browser OIDC login flow
+ */
+export const HandleBrowserLoginCallbackQueryParams = zod.object({
+  "code": zod.coerce.string().optional(),
+  "state": zod.coerce.string().optional(),
+  "iss": zod.coerce.string().url().optional()
+})
+
+export const HandleBrowserLoginCallbackResponse = zod.void()
+
+
+/**
+ * @summary Clear the session and begin OIDC logout
+ */
+export const LogoutBrowserSessionHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const LogoutBrowserSessionResponse = zod.void()
+
+
+/**
+ * @summary Exchange a mobile OIDC code for a session token
+ */
+
+
+
+
+
+
+
+export const ExchangeMobileAuthorizationCodeBody = zod.object({
+  "code": zod.string().min(1),
+  "code_verifier": zod.string().min(1),
+  "redirect_uri": zod.string().url().min(1),
+  "state": zod.string().min(1),
+  "nonce": zod.string().min(1).optional()
+})
+
+export const ExchangeMobileAuthorizationCodeResponse = zod.object({
+  "token": zod.string()
+})
+
+
+/**
+ * @summary Delete a mobile session token
+ */
+export const LogoutMobileSessionHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — `Bearer <sid>`.')
+})
+
+export const LogoutMobileSessionResponse = zod.object({
+  "success": zod.boolean()
+})
+
+
+/**
+ * @summary Create a curriculum module for a course (admin only)
+ */
+export const CreateCourseModuleParams = zod.object({
+  "courseId": zod.coerce.number()
+})
+
+
+
+
+export const CreateCourseModuleBody = zod.object({
+  "title": zod.string().min(1),
+  "position": zod.number().optional()
+})
+
+export const CreateCourseModuleResponse = zod.object({
+  "id": zod.number(),
+  "courseId": zod.number(),
+  "title": zod.string(),
+  "lessonsCount": zod.number(),
+  "position": zod.number()
+})
+
+
+/**
+ * @summary Add a lesson to a course module (admin only)
+ */
+export const CreateLessonParams = zod.object({
+  "moduleId": zod.coerce.number()
+})
+
+
+
+
+export const CreateLessonBody = zod.object({
+  "title": zod.string().min(1),
+  "contentUrl": zod.string().optional(),
+  "durationMinutes": zod.number().optional(),
+  "position": zod.number().optional(),
+  "isPreview": zod.boolean().optional()
+})
+
+export const CreateLessonResponse = zod.object({
+  "id": zod.number(),
+  "moduleId": zod.number(),
+  "courseId": zod.number(),
+  "title": zod.string(),
+  "contentUrl": zod.string().nullable(),
+  "durationMinutes": zod.number(),
+  "position": zod.number(),
+  "isPreview": zod.boolean()
+})
+
+
+/**
+ * @summary Update a lesson (admin only)
+ */
+export const UpdateLessonParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+export const UpdateLessonBody = zod.object({
+  "title": zod.string().min(1).optional(),
+  "contentUrl": zod.string().optional(),
+  "durationMinutes": zod.number().optional(),
+  "position": zod.number().optional(),
+  "isPreview": zod.boolean().optional()
+})
+
+export const UpdateLessonResponse = zod.object({
+  "id": zod.number(),
+  "moduleId": zod.number(),
+  "courseId": zod.number(),
+  "title": zod.string(),
+  "contentUrl": zod.string().nullable(),
+  "durationMinutes": zod.number(),
+  "position": zod.number(),
+  "isPreview": zod.boolean()
+})
+
+
+/**
+ * @summary Delete a lesson (admin only)
+ */
+export const DeleteLessonParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteLessonResponse = zod.void()
+
+
+/**
+ * @summary List lessons in a curriculum module
+ */
+export const ListModuleLessonsParams = zod.object({
+  "courseId": zod.coerce.number(),
+  "moduleId": zod.coerce.number()
+})
+
+export const ListModuleLessonsResponseItem = zod.object({
+  "id": zod.number(),
+  "moduleId": zod.number(),
+  "courseId": zod.number(),
+  "title": zod.string(),
+  "contentUrl": zod.string().nullable(),
+  "durationMinutes": zod.number(),
+  "position": zod.number(),
+  "isPreview": zod.boolean()
+})
+export const ListModuleLessonsResponse = zod.array(ListModuleLessonsResponseItem)
+
+
+/**
+ * @summary Create a pending Naira payment order to enroll in a course
+ */
+export const CreateOrderBody = zod.object({
+  "courseId": zod.number()
+})
+
+export const CreateOrderResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "courseId": zod.number(),
+  "amountKobo": zod.number(),
+  "status": zod.string(),
+  "reference": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List the current user's orders
+ */
+export const ListMyOrdersResponseItem = zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "courseId": zod.number(),
+  "amountKobo": zod.number(),
+  "status": zod.string(),
+  "reference": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListMyOrdersResponse = zod.array(ListMyOrdersResponseItem)
 
 

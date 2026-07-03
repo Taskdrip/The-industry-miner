@@ -18,6 +18,12 @@ tags:
     description: Learner testimonials
   - name: stats
     description: Platform-wide statistics
+  - name: Auth
+    description: Browser and mobile authentication endpoints.
+  - name: admin
+    description: Admin-only course and lesson management
+  - name: orders
+    description: Course enrollment and Naira payment orders
 paths:
   /healthz:
     get:
@@ -120,7 +126,299 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/StatsSummary"
+  /auth/user:
+    get:
+      tags: [Auth]
+      operationId: getCurrentAuthUser
+      summary: Get the currently authenticated user
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: Auth status resolved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUserEnvelope'
+  /login:
+    get:
+      tags: [Auth]
+      operationId: beginBrowserLogin
+      summary: Start the browser OIDC login flow
+      parameters:
+        - name: returnTo
+          in: query
+          required: false
+          description: Relative path to redirect to after login (must start with `/`). Defaults to `/`.
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to the OIDC authorization endpoint.
+  /callback:
+    get:
+      tags: [Auth]
+      operationId: handleBrowserLoginCallback
+      summary: Complete the browser OIDC login flow
+      parameters:
+        - name: code
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: iss
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uri
+      responses:
+        '302':
+          description: Redirect to the `returnTo` path on success (defaults to `/`) or `/api/login` on failure.
+  /logout:
+    get:
+      tags: [Auth]
+      operationId: logoutBrowserSession
+      summary: Clear the session and begin OIDC logout
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '302':
+          description: Redirect to the OIDC provider logout URL.
+  /mobile-auth/token-exchange:
+    post:
+      tags: [Auth]
+      operationId: exchangeMobileAuthorizationCode
+      summary: Exchange a mobile OIDC code for a session token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileTokenExchangeRequest'
+      responses:
+        '200':
+          description: Session created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileTokenExchangeSuccess'
+        '400':
+          description: Missing or invalid required fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Token did not contain usable claims.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Token exchange failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /mobile-auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logoutMobileSession
+      summary: Delete a mobile session token
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: Logout processed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutSuccess'
+  /admin/courses/{courseId}/modules:
+    post:
+      operationId: createCourseModule
+      tags: [admin]
+      summary: Create a curriculum module for a course (admin only)
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateModuleBody"
+      responses:
+        "201":
+          description: Module created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminModule"
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not an admin
+  /admin/modules/{moduleId}/lessons:
+    post:
+      operationId: createLesson
+      tags: [admin]
+      summary: Add a lesson to a course module (admin only)
+      parameters:
+        - name: moduleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLessonBody"
+      responses:
+        "201":
+          description: Lesson created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lesson"
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not an admin
+        "404":
+          description: Module not found
+  /admin/lessons/{id}:
+    patch:
+      operationId: updateLesson
+      tags: [admin]
+      summary: Update a lesson (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLessonBody"
+      responses:
+        "200":
+          description: Lesson updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lesson"
+        "404":
+          description: Lesson not found
+    delete:
+      operationId: deleteLesson
+      tags: [admin]
+      summary: Delete a lesson (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Lesson deleted
+        "404":
+          description: Lesson not found
+  /courses/{courseId}/modules/{moduleId}/lessons:
+    get:
+      operationId: listModuleLessons
+      tags: [courses]
+      summary: List lessons in a curriculum module
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: moduleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of lessons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lesson"
+  /orders:
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Create a pending Naira payment order to enroll in a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderBody"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "401":
+          description: Not authenticated
+        "404":
+          description: Course not found
+    get:
+      operationId: listMyOrders
+      tags: [orders]
+      summary: List the current user's orders
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+        "401":
+          description: Not authenticated
 components:
+  parameters:
+    AuthorizationSessionHeader:
+      name: Authorization
+      in: header
+      required: false
+      description: Opaque session token — `Bearer <sid>`.
+      schema:
+        type: string
+    SessionCookie:
+      name: sid
+      in: cookie
+      required: false
+      description: Browser session cookie.
+      schema:
+        type: string
   schemas:
     HealthStatus:
       type: object
@@ -206,13 +504,200 @@ components:
     CurriculumModule:
       type: object
       required:
+        - id
         - title
         - lessonsCount
       properties:
+        id:
+          type: integer
         title:
           type: string
         lessonsCount:
           type: integer
+    AdminModule:
+      type: object
+      required:
+        - id
+        - courseId
+        - title
+        - lessonsCount
+        - position
+      properties:
+        id:
+          type: integer
+        courseId:
+          type: integer
+        title:
+          type: string
+        lessonsCount:
+          type: integer
+        position:
+          type: integer
+    CreateModuleBody:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+        position:
+          type: integer
+    Lesson:
+      type: object
+      required:
+        - id
+        - moduleId
+        - courseId
+        - title
+        - contentUrl
+        - durationMinutes
+        - position
+        - isPreview
+      properties:
+        id:
+          type: integer
+        moduleId:
+          type: integer
+        courseId:
+          type: integer
+        title:
+          type: string
+        contentUrl:
+          type: ["string", "null"]
+        durationMinutes:
+          type: integer
+        position:
+          type: integer
+        isPreview:
+          type: boolean
+    CreateLessonBody:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+        contentUrl:
+          type: string
+        durationMinutes:
+          type: integer
+        position:
+          type: integer
+        isPreview:
+          type: boolean
+    UpdateLessonBody:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        contentUrl:
+          type: string
+        durationMinutes:
+          type: integer
+        position:
+          type: integer
+        isPreview:
+          type: boolean
+    CreateOrderBody:
+      type: object
+      required:
+        - courseId
+      properties:
+        courseId:
+          type: integer
+    Order:
+      type: object
+      required:
+        - id
+        - userId
+        - courseId
+        - amountKobo
+        - status
+        - reference
+        - createdAt
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        courseId:
+          type: integer
+        amountKobo:
+          type: integer
+        status:
+          type: string
+        reference:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    AuthUser:
+      type: object
+      required: [id, email, firstName, lastName, profileImageUrl, role]
+      properties:
+        id:
+          type: string
+        email:
+          type: [string, 'null']
+          format: email
+        firstName:
+          type: [string, 'null']
+        lastName:
+          type: [string, 'null']
+        profileImageUrl:
+          type: [string, 'null']
+        role:
+          type: string
+    AuthUserEnvelope:
+      type: object
+      required: [user]
+      properties:
+        user:
+          oneOf:
+            - $ref: '#/components/schemas/AuthUser'
+            - type: 'null'
+    MobileTokenExchangeRequest:
+      type: object
+      required: [code, code_verifier, redirect_uri, state]
+      properties:
+        code:
+          type: string
+          minLength: 1
+        code_verifier:
+          type: string
+          minLength: 1
+        redirect_uri:
+          type: string
+          minLength: 1
+          format: uri
+        state:
+          type: string
+          minLength: 1
+        nonce:
+          type: string
+          minLength: 1
+    MobileTokenExchangeSuccess:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+    LogoutSuccess:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          const: true
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
     Category:
       type: object
       required:

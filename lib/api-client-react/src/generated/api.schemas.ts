@@ -31,6 +31,7 @@ export interface Course {
 }
 
 export interface CurriculumModule {
+  id: number;
   title: string;
   lessonsCount: number;
 }
@@ -40,6 +41,107 @@ export type CourseDetail = Course & {
   whatYouWillLearn: string[];
   curriculum: CurriculumModule[];
 };
+
+export interface AdminModule {
+  id: number;
+  courseId: number;
+  title: string;
+  lessonsCount: number;
+  position: number;
+}
+
+export interface CreateModuleBody {
+  /** @minLength 1 */
+  title: string;
+  position?: number;
+}
+
+export interface Lesson {
+  id: number;
+  moduleId: number;
+  courseId: number;
+  title: string;
+  /** @nullable */
+  contentUrl: string | null;
+  durationMinutes: number;
+  position: number;
+  isPreview: boolean;
+}
+
+export interface CreateLessonBody {
+  /** @minLength 1 */
+  title: string;
+  contentUrl?: string;
+  durationMinutes?: number;
+  position?: number;
+  isPreview?: boolean;
+}
+
+export interface UpdateLessonBody {
+  /** @minLength 1 */
+  title?: string;
+  contentUrl?: string;
+  durationMinutes?: number;
+  position?: number;
+  isPreview?: boolean;
+}
+
+export interface CreateOrderBody {
+  courseId: number;
+}
+
+export interface Order {
+  id: number;
+  userId: string;
+  courseId: number;
+  amountKobo: number;
+  status: string;
+  reference: string;
+  createdAt: string;
+}
+
+export interface AuthUser {
+  id: string;
+  /** @nullable */
+  email: string | null;
+  /** @nullable */
+  firstName: string | null;
+  /** @nullable */
+  lastName: string | null;
+  /** @nullable */
+  profileImageUrl: string | null;
+  role: string;
+}
+
+export interface AuthUserEnvelope {
+  user: AuthUser | null;
+}
+
+export interface MobileTokenExchangeRequest {
+  /** @minLength 1 */
+  code: string;
+  /** @minLength 1 */
+  code_verifier: string;
+  /** @minLength 1 */
+  redirect_uri: string;
+  /** @minLength 1 */
+  state: string;
+  /** @minLength 1 */
+  nonce?: string;
+}
+
+export interface MobileTokenExchangeSuccess {
+  token: string;
+}
+
+export const LogoutSuccessValue = {
+  success: true,
+} as const;
+export type LogoutSuccess = typeof LogoutSuccessValue;
+
+export interface ErrorEnvelope {
+  error: string;
+}
 
 export interface Category {
   id: number;
@@ -65,8 +167,26 @@ export interface StatsSummary {
   expertInstructors: number;
 }
 
+/**
+ * Opaque session token — `Bearer <sid>`.
+ */
+export type AuthorizationSessionHeaderParameter = string;
+
 export type ListCoursesParams = {
 category?: string;
 featured?: boolean;
+};
+
+export type BeginBrowserLoginParams = {
+/**
+ * Relative path to redirect to after login (must start with `/`). Defaults to `/`.
+ */
+returnTo?: string;
+};
+
+export type HandleBrowserLoginCallbackParams = {
+code?: string;
+state?: string;
+iss?: string;
 };
 

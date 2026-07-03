@@ -4,12 +4,14 @@ import {
   db,
   coursesTable,
   courseCurriculumModulesTable,
+  courseLessonsTable,
 } from "@workspace/db";
 import {
   ListCoursesQueryParams,
   ListCoursesResponse,
   GetCourseParams,
   GetCourseResponse,
+  ListModuleLessonsResponse,
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -67,11 +69,37 @@ router.get("/courses/:id", async (req, res): Promise<void> => {
     GetCourseResponse.parse({
       ...course,
       curriculum: modules.map((m) => ({
+        id: m.id,
         title: m.title,
         lessonsCount: m.lessonsCount,
       })),
     }),
   );
 });
+
+router.get(
+  "/courses/:courseId/modules/:moduleId/lessons",
+  async (req, res): Promise<void> => {
+    const courseId = Number(req.params.courseId);
+    const moduleId = Number(req.params.moduleId);
+    if (!Number.isInteger(courseId) || !Number.isInteger(moduleId)) {
+      res.status(400).json({ error: "Invalid courseId or moduleId" });
+      return;
+    }
+
+    const lessons = await db
+      .select()
+      .from(courseLessonsTable)
+      .where(
+        and(
+          eq(courseLessonsTable.courseId, courseId),
+          eq(courseLessonsTable.moduleId, moduleId),
+        ),
+      )
+      .orderBy(courseLessonsTable.position);
+
+    res.json(ListModuleLessonsResponse.parse(lessons));
+  },
+);
 
 export default router;
