@@ -1,4 +1,5 @@
 import * as oidc from "openid-client";
+import bcrypt from "bcryptjs";
 import { Router, type IRouter, type Request, type Response } from "express";
 import {
   GetCurrentAuthUserResponse,
@@ -202,18 +203,117 @@ router.get("/callback", async (req: Request, res: Response) => {
 });
 
 router.get("/logout", async (req: Request, res: Response) => {
-  const config = await getOidcConfig();
   const origin = getOrigin(req);
-
   const sid = getSessionId(req);
+
+  // Peek at the session to decide if this is a local or OIDC user
+  const session = sid ? await import("../lib/auth").then((m) => m.getSession(sid)) : null;
   await clearSession(res, sid);
 
+  // Local-auth users have no refresh_token — just redirect home
+  if (!session?.refresh_token) {
+    res.redirect("/");
+    return;
+  }
+
+  const config = await getOidcConfig();
   const endSessionUrl = oidc.buildEndSessionUrl(config, {
     client_id: process.env.REPL_ID!,
     post_logout_redirect_uri: origin,
   });
 
   res.redirect(endSessionUrl.href);
+});
+
+// ── Local email/password auth ────────────────────────────────────────────────
+
+router.post("/auth/signup", async (req: Request, res: Response) => {
+  const { email, password, firstName, lastName, phoneNumber } = req.body ?? {};
+
+  if (!email || !password || !phoneNumber) {
+    res.status(400).json({ error: "email, password and phone number are required" });
+    return;
+  }
+  if (typeof password !== "string" || password.length < 8) {
+    res.status(400).json({ error: "Password must be at least 8 characters" });
+    return;
+  }
+
+  const existing = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, email));
+  if (existing.length > 0) {
+    res.status(409).json({ error: "An account with this email already exists" });
+    return;
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  const [{ count }] = await db.select({ count: sql<number>`count(*)::int` }).from(usersTable);
+  const isFirstUser = count === 0;
+
+  const [user] = await db
+    .insert(usersTable)
+    .values({
+      email,
+      firstName: firstName || null,
+      lastName: lastName || null,
+      phoneNumber: phoneNumber || null,
+      passwordHash,
+      role: isFirstUser ? "admin" : "user",
+    })
+    .returning();
+
+  const sessionData = {
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      profileImageUrl: user.profileImageUrl,
+      role: user.role,
+    },
+    access_token: "",
+  };
+
+  const sid = await createSession(sessionData);
+  setSessionCookie(res, sid);
+  res.status(201).json({ user: sessionData.user });
+});
+
+router.post("/auth/login", async (req: Request, res: Response) => {
+  const { email, password } = req.body ?? {};
+
+  if (!email || !password) {
+    res.status(400).json({ error: "Email and password are required" });
+    return;
+  }
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+  if (!user || !user.passwordHash) {
+    res.status(401).json({ error: "Invalid email or password" });
+    return;
+  }
+
+  const valid = await bcrypt.compare(password, user.passwordHash);
+  if (!valid) {
+    res.status(401).json({ error: "Invalid email or password" });
+    return;
+  }
+
+  const sessionData = {
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      profileImageUrl: user.profileImageUrl,
+      role: user.role,
+    },
+    access_token: "",
+  };
+
+  const sid = await createSession(sessionData);
+  setSessionCookie(res, sid);
+  res.json({ user: sessionData.user });
 });
 
 router.post(

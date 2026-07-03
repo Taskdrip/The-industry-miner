@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import logoUrl from "@assets/brand/logo.png";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, LogOut, Shield } from "lucide-react";
+import { Menu, X, LogOut, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -12,11 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AuthModal from "@/components/auth/AuthModal";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, isAuthenticated, isAdmin, loginUrl, logoutUrl } = useAuth();
+  const [authModal, setAuthModal] = useState<{ open: boolean; tab: "login" | "signup" }>({ open: false, tab: "login" });
+  const { user, isAuthenticated, isAdmin, logoutUrl } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -98,14 +100,16 @@ export default function Header() {
               </DropdownMenu>
             ) : (
               <>
-                <a href={loginUrl}>
-                  <Button variant={isScrolled ? "ghost" : "link"} className={isScrolled ? "text-secondary" : "text-white"}>
-                    Log in
-                  </Button>
-                </a>
-                <a href={loginUrl}>
-                  <Button>Get Started</Button>
-                </a>
+                <Button
+                  variant={isScrolled ? "ghost" : "link"}
+                  className={isScrolled ? "text-secondary" : "text-white"}
+                  onClick={() => setAuthModal({ open: true, tab: "login" })}
+                >
+                  Log in
+                </Button>
+                <Button onClick={() => setAuthModal({ open: true, tab: "signup" })}>
+                  Get Started
+                </Button>
               </>
             )}
           </div>
@@ -152,16 +156,21 @@ export default function Header() {
             </>
           ) : (
             <>
-              <a href={loginUrl}>
-                <Button variant="outline" className="w-full justify-center">Log in</Button>
-              </a>
-              <a href={loginUrl}>
-                <Button className="w-full justify-center">Get Started</Button>
-              </a>
+              <Button variant="outline" className="w-full justify-center" onClick={() => { setMobileMenuOpen(false); setAuthModal({ open: true, tab: "login" }); }}>
+                Log in
+              </Button>
+              <Button className="w-full justify-center" onClick={() => { setMobileMenuOpen(false); setAuthModal({ open: true, tab: "signup" }); }}>
+                Get Started
+              </Button>
             </>
           )}
         </div>
       )}
+      <AuthModal
+        open={authModal.open}
+        defaultTab={authModal.tab}
+        onClose={() => setAuthModal((s) => ({ ...s, open: false }))}
+      />
     </header>
   );
 }
