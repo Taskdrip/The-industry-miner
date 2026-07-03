@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useListCourses } from "@workspace/api-client-react";
 import Header from "@/components/layout/Header";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import {
   PlusCircle, ChevronDown, ChevronRight, Lock, Loader2, BookOpen,
   Video, CheckCircle2, Trash2, Gem, Pencil, Save, X, ExternalLink,
+  FileText, Download, Link2, File, FolderOpen, LayoutList,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -41,6 +42,248 @@ interface Lesson {
   durationMinutes: number | null;
   isPreview: boolean;
   order: number;
+}
+
+interface Resource {
+  id: number;
+  courseId: number;
+  title: string;
+  url: string;
+  type: string;
+  description: string | null;
+  position: number;
+}
+
+const RESOURCE_TYPES = [
+  { value: "video", label: "Video Link", icon: <Video className="w-3.5 h-3.5" /> },
+  { value: "pdf", label: "PDF", icon: <FileText className="w-3.5 h-3.5" /> },
+  { value: "download", label: "Download", icon: <Download className="w-3.5 h-3.5" /> },
+  { value: "link", label: "External Link", icon: <Link2 className="w-3.5 h-3.5" /> },
+];
+
+const resourceIcon: Record<string, React.ReactNode> = {
+  video: <Video className="w-4 h-4 text-purple-500" />,
+  pdf: <FileText className="w-4 h-4 text-red-500" />,
+  download: <Download className="w-4 h-4 text-blue-500" />,
+  link: <Link2 className="w-4 h-4 text-green-500" />,
+};
+
+// ─── Resource Row ─────────────────────────────────────────────────────────────
+function ResourceRow({ resource, onDelete, onUpdate }: {
+  resource: Resource;
+  onDelete: (id: number) => void;
+  onUpdate: (updated: Resource) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [title, setTitle] = useState(resource.title);
+  const [url, setUrl] = useState(resource.url);
+  const [type, setType] = useState(resource.type);
+  const [description, setDescription] = useState(resource.description ?? "");
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const save = async () => {
+    if (!title.trim() || !url.trim()) return;
+    setLoading(true);
+    try {
+      const updated = await apiFetch(`/admin/resources/${resource.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ title: title.trim(), url: url.trim(), type, description: description.trim() || null }),
+      });
+      onUpdate(updated ?? { ...resource, title: title.trim(), url: url.trim(), type, description: description.trim() || null });
+      setEditing(false);
+      toast({ title: "Resource updated" });
+    } catch {
+      toast({ title: "Error", description: "Failed to update resource", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (editing) {
+    return (
+      <div className="bg-accent/40 rounded-xl px-4 py-3 border border-primary/20 space-y-2.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Resource title" className="h-8 text-sm" disabled={loading} />
+          <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." className="h-8 text-sm" disabled={loading} />
+          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description (optional)" className="h-8 text-sm" disabled={loading} />
+          <select
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            className="h-8 text-sm rounded-md border border-input bg-background px-2 disabled:opacity-50"
+            disabled={loading}
+          >
+            {RESOURCE_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>{t.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button size="sm" onClick={save} disabled={loading || !title.trim() || !url.trim()} className="h-7 text-xs">
+            {loading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Save className="w-3 h-3 mr-1" />}
+            Save
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => { setEditing(false); setTitle(resource.title); setUrl(resource.url); setType(resource.type); setDescription(resource.description ?? ""); }} className="h-7 text-xs">
+            <X className="w-3 h-3 mr-1" /> Cancel
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-start gap-3 bg-background rounded-xl px-4 py-3 border border-border group hover:border-border/80 transition-colors">
+      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+        {resourceIcon[resource.type] ?? <File className="w-4 h-4 text-muted-foreground" />}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-sm truncate">{resource.title}</span>
+          <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full capitalize">
+            {RESOURCE_TYPES.find((t) => t.value === resource.type)?.label ?? resource.type}
+          </span>
+        </div>
+        <div className="flex items-center gap-3 mt-0.5">
+          {resource.description && (
+            <span className="text-xs text-muted-foreground truncate max-w-xs">{resource.description}</span>
+          )}
+          <a href={resource.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
+            <ExternalLink className="w-3 h-3 flex-shrink-0" />
+            <span className="truncate max-w-[180px]">Open link</span>
+          </a>
+        </div>
+      </div>
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+        <button onClick={() => setEditing(true)} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors" title="Edit">
+          <Pencil className="w-3.5 h-3.5" />
+        </button>
+        <button onClick={() => onDelete(resource.id)} className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/08 rounded-lg transition-colors" title="Delete">
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Resource Manager ─────────────────────────────────────────────────────────
+function ResourceManager({ courseId }: { courseId: number }) {
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(false);
+  // Add form state
+  const [title, setTitle] = useState("");
+  const [url, setUrl] = useState("");
+  const [type, setType] = useState("link");
+  const [description, setDescription] = useState("");
+  const [adding, setAdding] = useState(false);
+  const { toast } = useToast();
+
+  const load = async () => {
+    if (loaded) return;
+    setLoading(true);
+    try {
+      const data = await apiFetch(`/courses/${courseId}/resources`);
+      setResources(Array.isArray(data) ? data : []);
+      setLoaded(true);
+    } catch {
+      toast({ title: "Error", description: "Failed to load resources", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load on mount — use useEffect to avoid side effects during render
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, [courseId]);
+
+  const addResource = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !url.trim()) return;
+    setAdding(true);
+    try {
+      const resource = await apiFetch(`/admin/courses/${courseId}/resources`, {
+        method: "POST",
+        body: JSON.stringify({ title: title.trim(), url: url.trim(), type, description: description.trim() || null }),
+      });
+      setResources((prev) => [...prev, resource]);
+      setTitle(""); setUrl(""); setType("link"); setDescription("");
+      toast({ title: "Resource added", description: `"${resource.title}" added.` });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to add resource";
+      toast({ title: "Error", description: msg, variant: "destructive" });
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const deleteResource = async (id: number) => {
+    try {
+      await apiFetch(`/admin/resources/${id}`, { method: "DELETE" });
+      setResources((prev) => prev.filter((r) => r.id !== id));
+      toast({ title: "Resource deleted" });
+    } catch {
+      toast({ title: "Error", description: "Failed to delete resource", variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {loading && (
+        <div className="flex items-center gap-2 text-muted-foreground text-sm py-3">
+          <Loader2 className="w-4 h-4 animate-spin" /> Loading resources…
+        </div>
+      )}
+
+      {!loading && resources.length === 0 && loaded && (
+        <p className="text-sm text-muted-foreground py-2">No resources yet. Add one below.</p>
+      )}
+
+      {resources.map((r) => (
+        <ResourceRow
+          key={r.id}
+          resource={r}
+          onDelete={deleteResource}
+          onUpdate={(updated) => setResources((prev) => prev.map((x) => x.id === updated.id ? updated : x))}
+        />
+      ))}
+
+      {/* Add resource form */}
+      <form onSubmit={addResource} className="bg-muted/30 rounded-xl p-4 space-y-3 border border-dashed border-border mt-2">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Add a Resource</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs mb-1 block font-medium">Title *</Label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Module 1 Worksheet" disabled={adding} className="h-9 text-sm" />
+          </div>
+          <div>
+            <Label className="text-xs mb-1 block font-medium">URL *</Label>
+            <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://drive.google.com/…" disabled={adding} className="h-9 text-sm" />
+          </div>
+          <div>
+            <Label className="text-xs mb-1 block font-medium">Type</Label>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="w-full h-9 text-sm rounded-md border border-input bg-background px-3 disabled:opacity-50"
+              disabled={adding}
+            >
+              {RESOURCE_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <Label className="text-xs mb-1 block font-medium">Description</Label>
+            <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional description" disabled={adding} className="h-9 text-sm" />
+          </div>
+        </div>
+        <Button type="submit" disabled={adding || !title.trim() || !url.trim()} size="sm" className="h-9">
+          {adding ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <PlusCircle className="w-3.5 h-3.5 mr-1.5" />}
+          Add Resource
+        </Button>
+      </form>
+    </div>
+  );
 }
 
 // ─── Add Module Form ──────────────────────────────────────────────────────────
@@ -403,6 +646,7 @@ function ModuleAccordion({ courseId, module_, onDelete }: {
 // ─── Course Panel ─────────────────────────────────────────────────────────────
 function CoursePanel({ course, highlight }: { course: { id: number; title: string; category: string }; highlight?: boolean }) {
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"curriculum" | "resources">("curriculum");
   const [modules, setModules] = useState<Module[]>([]);
   const [loaded, setLoaded] = useState(false);
   const { toast } = useToast();
@@ -453,28 +697,69 @@ function CoursePanel({ course, highlight }: { course: { id: number; title: strin
       </button>
 
       {open && (
-        <div className="px-6 pb-6 pt-4 bg-background border-t border-border space-y-4">
-          <div className="space-y-2.5">
-            {modules.map((m) => (
-              <ModuleAccordion
-                key={m.id}
-                courseId={course.id}
-                module_={m}
-                onDelete={deleteModule}
-              />
-            ))}
-            {loaded && modules.length === 0 && (
-              <p className="text-sm text-muted-foreground py-2">No modules yet. Add one below.</p>
-            )}
+        <div className="bg-background border-t border-border">
+          {/* Tabs */}
+          <div className="flex items-center gap-1 px-6 pt-4 pb-0 border-b border-border">
+            <button
+              onClick={() => setActiveTab("curriculum")}
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${
+                activeTab === "curriculum"
+                  ? "border-primary text-primary bg-primary/5"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <LayoutList className="w-3.5 h-3.5" />
+              Curriculum
+            </button>
+            <button
+              onClick={() => setActiveTab("resources")}
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${
+                activeTab === "resources"
+                  ? "border-primary text-primary bg-primary/5"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <FolderOpen className="w-3.5 h-3.5" />
+              Resources
+            </button>
           </div>
 
-          <div className="border-t border-border pt-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Add a Module</p>
-            <AddModuleForm
-              courseId={course.id}
-              onAdded={(m) => setModules((prev) => [...prev, m])}
-            />
-          </div>
+          {/* Curriculum tab */}
+          {activeTab === "curriculum" && (
+            <div className="px-6 pb-6 pt-4 space-y-4">
+              <div className="space-y-2.5">
+                {modules.map((m) => (
+                  <ModuleAccordion
+                    key={m.id}
+                    courseId={course.id}
+                    module_={m}
+                    onDelete={deleteModule}
+                  />
+                ))}
+                {loaded && modules.length === 0 && (
+                  <p className="text-sm text-muted-foreground py-2">No modules yet. Add one below.</p>
+                )}
+              </div>
+
+              <div className="border-t border-border pt-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Add a Module</p>
+                <AddModuleForm
+                  courseId={course.id}
+                  onAdded={(m) => setModules((prev) => [...prev, m])}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Resources tab */}
+          {activeTab === "resources" && (
+            <div className="px-6 pb-6 pt-4">
+              <p className="text-xs text-muted-foreground mb-4">
+                Add PDFs, video links, downloads, and other resources that enrolled subscribers can access.
+              </p>
+              <ResourceManager courseId={course.id} />
+            </div>
+          )}
         </div>
       )}
     </div>

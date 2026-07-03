@@ -23,3 +23,4 @@ export * from "./testimonials";
 export * from "./auth";
 export * from "./lessons";
 export * from "./orders";
+export * from "./resources";

@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import logoUrl from "@assets/brand/logo.png";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Shield, ChevronDown, Gem } from "lucide-react";
+import { Menu, X, LogOut, Shield, ChevronDown, Gem, LayoutDashboard } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -105,6 +105,13 @@ export default function Header() {
                     <p className="text-sm font-semibold truncate">{user?.firstName} {user?.lastName}</p>
                     <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                   </div>
+                  <DropdownMenuSeparator />
+                  <Link href="/dashboard">
+                    <DropdownMenuItem className="cursor-pointer gap-2">
+                      <LayoutDashboard className="w-4 h-4 text-primary" />
+                      <span className="font-semibold">My Dashboard</span>
+                    </DropdownMenuItem>
+                  </Link>
                   {isAdmin && (
                     <>
                       <DropdownMenuSeparator />
@@ -200,6 +207,9 @@ export default function Header() {
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
               </div>
+              <Link href="/dashboard" className="flex items-center gap-2 p-2 text-secondary font-semibold rounded-lg hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>
+                <LayoutDashboard className="w-4 h-4 text-primary" /> My Dashboard
+              </Link>
               {isAdmin && (
                 <Link href="/admin" className="flex items-center gap-2 p-2 text-secondary font-semibold rounded-lg hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>
                   <Shield className="w-4 h-4" /> Admin Panel

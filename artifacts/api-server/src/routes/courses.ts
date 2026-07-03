@@ -5,6 +5,7 @@ import {
   coursesTable,
   courseCurriculumModulesTable,
   courseLessonsTable,
+  ordersTable,
 } from "@workspace/db";
 import {
   ListCoursesQueryParams,
@@ -80,11 +81,30 @@ router.get("/courses/:id", async (req, res): Promise<void> => {
 router.get(
   "/courses/:courseId/modules/:moduleId/lessons",
   async (req, res): Promise<void> => {
+    // Require authentication for lesson content (contains premium video URLs)
+    if (!req.isAuthenticated()) {
+      res.status(401).json({ error: "Not authenticated" });
+      return;
+    }
+
     const courseId = Number(req.params.courseId);
     const moduleId = Number(req.params.moduleId);
     if (!Number.isInteger(courseId) || !Number.isInteger(moduleId)) {
       res.status(400).json({ error: "Invalid courseId or moduleId" });
       return;
+    }
+
+    // Admins bypass enrollment check; others must have an order
+    if (req.user.role !== "admin") {
+      const orders = await db
+        .select({ courseId: ordersTable.courseId })
+        .from(ordersTable)
+        .where(eq(ordersTable.userId, req.user.id));
+      const isEnrolled = orders.some((o) => o.courseId === courseId);
+      if (!isEnrolled) {
+        res.status(403).json({ error: "Not enrolled in this course" });
+        return;
+      }
     }
 
     const lessons = await db
