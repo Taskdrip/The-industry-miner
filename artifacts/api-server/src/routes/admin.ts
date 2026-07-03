@@ -1,10 +1,11 @@
 import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, desc } from "drizzle-orm";
 import {
   db,
   coursesTable,
   courseCurriculumModulesTable,
   courseLessonsTable,
+  ordersTable,
 } from "@workspace/db";
 import {
   CreateCourseModuleBody,
@@ -232,6 +233,64 @@ router.delete(
       .where(eq(courseCurriculumModulesTable.id, lesson.moduleId));
 
     res.status(204).send();
+  },
+);
+
+// GET /admin/orders — list all orders with course info, most recent first
+router.get(
+  "/admin/orders",
+  requireAdmin,
+  async (req: Request, res: Response): Promise<void> => {
+    const orders = await db
+      .select({
+        id: ordersTable.id,
+        userId: ordersTable.userId,
+        courseId: ordersTable.courseId,
+        amountKobo: ordersTable.amountKobo,
+        status: ordersTable.status,
+        reference: ordersTable.reference,
+        createdAt: ordersTable.createdAt,
+        updatedAt: ordersTable.updatedAt,
+        courseTitle: coursesTable.title,
+      })
+      .from(ordersTable)
+      .leftJoin(coursesTable, eq(ordersTable.courseId, coursesTable.id))
+      .orderBy(desc(ordersTable.createdAt));
+
+    res.json(orders);
+  },
+);
+
+// PATCH /admin/orders/:id — update order status (approve / reject / reset)
+router.patch(
+  "/admin/orders/:id",
+  requireAdmin,
+  async (req: Request, res: Response): Promise<void> => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
+
+    const { status } = req.body as { status?: unknown };
+    const VALID_STATUSES = ["pending", "completed", "rejected"] as const;
+    if (typeof status !== "string" || !(VALID_STATUSES as readonly string[]).includes(status)) {
+      res.status(400).json({ error: `status must be one of: ${VALID_STATUSES.join(", ")}` });
+      return;
+    }
+
+    const [order] = await db
+      .update(ordersTable)
+      .set({ status })
+      .where(eq(ordersTable.id, id))
+      .returning();
+
+    if (!order) {
+      res.status(404).json({ error: "Order not found" });
+      return;
+    }
+
+    res.json(order);
   },
 );
 

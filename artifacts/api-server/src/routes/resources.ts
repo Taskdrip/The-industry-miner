@@ -25,7 +25,23 @@ function requireAdmin(req: Request, res: Response, next: NextFunction): void {
   next();
 }
 
-// GET /courses/:courseId/resources — enrolled users or admin
+// Helper: check for a completed (paid) order
+async function hasCompletedOrder(userId: string, courseId: number): Promise<boolean> {
+  const [order] = await db
+    .select({ id: ordersTable.id })
+    .from(ordersTable)
+    .where(
+      and(
+        eq(ordersTable.userId, userId),
+        eq(ordersTable.courseId, courseId),
+        eq(ordersTable.status, "completed"),
+      ),
+    )
+    .limit(1);
+  return !!order;
+}
+
+// GET /courses/:courseId/resources — completed-order users or admin
 router.get(
   "/courses/:courseId/resources",
   async (req: Request, res: Response): Promise<void> => {
@@ -40,22 +56,8 @@ router.get(
       return;
     }
 
-    // Admins can always access; others must have an order
     if (req.user.role !== "admin") {
-      const [order] = await db
-        .select({ id: ordersTable.id })
-        .from(ordersTable)
-        .where(eq(ordersTable.userId, req.user.id))
-        .limit(50);
-
-      // Check if any order matches this courseId
-      const allOrders = await db
-        .select({ courseId: ordersTable.courseId })
-        .from(ordersTable)
-        .where(eq(ordersTable.userId, req.user.id));
-
-      const isEnrolled = allOrders.some((o) => o.courseId === courseId);
-      if (!isEnrolled) {
+      if (!(await hasCompletedOrder(req.user.id, courseId))) {
         res.status(403).json({ error: "Not enrolled in this course" });
         return;
       }
@@ -86,13 +88,9 @@ router.get(
       return;
     }
 
-    // Enrollment check (admins bypass)
+    // Enrollment check — require completed (paid) order; admins bypass
     if (req.user.role !== "admin") {
-      const orders = await db
-        .select({ courseId: ordersTable.courseId })
-        .from(ordersTable)
-        .where(eq(ordersTable.userId, req.user.id));
-      if (!orders.some((o) => o.courseId === courseId)) {
+      if (!(await hasCompletedOrder(req.user.id, courseId))) {
         res.status(403).json({ error: "Not enrolled in this course" });
         return;
       }
@@ -137,10 +135,11 @@ router.get(
       return;
     }
 
+    // Only show courses the user has a completed (paid) order for
     const orders = await db
       .select()
       .from(ordersTable)
-      .where(eq(ordersTable.userId, req.user.id));
+      .where(and(eq(ordersTable.userId, req.user.id), eq(ordersTable.status, "completed")));
 
     if (orders.length === 0) {
       res.json({ enrolledCourses: [] });
@@ -148,8 +147,8 @@ router.get(
     }
 
     const courseIds = [...new Set(orders.map((o) => o.courseId))];
-    const courses = await db.select().from(coursesTable);
-    const enrolled = courses.filter((c) => courseIds.includes(c.id));
+    const allCourses = await db.select().from(coursesTable);
+    const enrolled = allCourses.filter((c) => courseIds.includes(c.id));
 
     res.json({
       enrolledCourses: enrolled.map((course) => {
@@ -233,8 +232,13 @@ router.patch(
     const updates: Record<string, unknown> = {};
     if (typeof title === "string" && title.trim()) updates.title = title.trim();
     if (typeof url === "string" && url.trim()) updates.url = url.trim();
-    if (typeof type === "string" && (VALID_RESOURCE_TYPES as readonly string[]).includes(type))
+    if (type !== undefined) {
+      if (typeof type !== "string" || !(VALID_RESOURCE_TYPES as readonly string[]).includes(type)) {
+        res.status(400).json({ error: `type must be one of: ${VALID_RESOURCE_TYPES.join(", ")}` });
+        return;
+      }
       updates.type = type;
+    }
     if (typeof description === "string") updates.description = description.trim() || null;
     if (typeof position === "number") updates.position = position;
 

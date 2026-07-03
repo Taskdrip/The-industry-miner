@@ -94,14 +94,20 @@ router.get(
       return;
     }
 
-    // Admins bypass enrollment check; others must have an order
+    // Admins bypass enrollment check; others need a completed (paid) order
     if (req.user.role !== "admin") {
-      const orders = await db
-        .select({ courseId: ordersTable.courseId })
+      const [order] = await db
+        .select({ id: ordersTable.id })
         .from(ordersTable)
-        .where(eq(ordersTable.userId, req.user.id));
-      const isEnrolled = orders.some((o) => o.courseId === courseId);
-      if (!isEnrolled) {
+        .where(
+          and(
+            eq(ordersTable.userId, req.user.id),
+            eq(ordersTable.courseId, courseId),
+            eq(ordersTable.status, "completed"),
+          ),
+        )
+        .limit(1);
+      if (!order) {
         res.status(403).json({ error: "Not enrolled in this course" });
         return;
       }

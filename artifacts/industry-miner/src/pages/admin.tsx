@@ -9,6 +9,7 @@ import {
   PlusCircle, ChevronDown, ChevronRight, Lock, Loader2, BookOpen,
   Video, CheckCircle2, Trash2, Gem, Pencil, Save, X, ExternalLink,
   FileText, Download, Link2, File, FolderOpen, LayoutList,
+  ShoppingBag, CheckCheck, XCircle, Clock,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -766,6 +767,145 @@ function CoursePanel({ course, highlight }: { course: { id: number; title: strin
   );
 }
 
+// ─── Orders Manager ───────────────────────────────────────────────────────────
+interface Order {
+  id: number;
+  userId: string;
+  courseId: number;
+  amountKobo: number;
+  status: string;
+  reference: string;
+  createdAt: string;
+  courseTitle: string | null;
+}
+
+function OrdersManager() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState<number | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    apiFetch("/admin/orders")
+      .then((data) => setOrders(Array.isArray(data) ? data : []))
+      .catch(() => toast({ title: "Error", description: "Failed to load orders", variant: "destructive" }))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const updateStatus = async (orderId: number, status: "completed" | "rejected" | "pending") => {
+    setUpdating(orderId);
+    try {
+      const updated = await apiFetch(`/admin/orders/${orderId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      });
+      setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status: updated.status } : o));
+      toast({ title: status === "completed" ? "Order approved ✓" : status === "rejected" ? "Order rejected" : "Order reset", description: `Reference: ${orders.find((o) => o.id === orderId)?.reference}` });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to update order";
+      toast({ title: "Error", description: msg, variant: "destructive" });
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const statusBadge = (status: string) => {
+    if (status === "completed") return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">
+        <CheckCheck className="w-2.5 h-2.5" /> Approved
+      </span>
+    );
+    if (status === "rejected") return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full">
+        <XCircle className="w-2.5 h-2.5" /> Rejected
+      </span>
+    );
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">
+        <Clock className="w-2.5 h-2.5" /> Pending
+      </span>
+    );
+  };
+
+  if (loading) return (
+    <div className="flex items-center gap-2 text-muted-foreground text-sm py-6">
+      <Loader2 className="w-4 h-4 animate-spin" /> Loading orders…
+    </div>
+  );
+
+  if (orders.length === 0) return (
+    <div className="text-center py-12 text-muted-foreground">
+      <ShoppingBag className="w-10 h-10 mx-auto mb-3 opacity-25" />
+      <p className="font-medium text-sm">No orders yet.</p>
+    </div>
+  );
+
+  return (
+    <div className="space-y-2">
+      {orders.map((order) => {
+        const isUpdating = updating === order.id;
+        const amountNaira = (order.amountKobo / 100).toLocaleString("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 });
+        const dateStr = new Date(order.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+        return (
+          <div key={order.id} className="flex items-start gap-4 bg-card border border-border rounded-xl px-5 py-4">
+            <div className="flex-1 min-w-0 space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-sm truncate">{order.courseTitle ?? `Course #${order.courseId}`}</span>
+                {statusBadge(order.status)}
+              </div>
+              <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+                <span>User: <span className="font-mono">{order.userId.slice(0, 12)}…</span></span>
+                <span>·</span>
+                <span>{amountNaira}</span>
+                <span>·</span>
+                <span>{dateStr}</span>
+                <span>·</span>
+                <span className="font-mono">{order.reference}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {order.status !== "completed" && (
+                <Button
+                  size="sm"
+                  className="h-7 text-xs bg-green-600 hover:bg-green-700 text-white"
+                  disabled={isUpdating}
+                  onClick={() => updateStatus(order.id, "completed")}
+                >
+                  {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCheck className="w-3 h-3 mr-1" />}
+                  Approve
+                </Button>
+              )}
+              {order.status !== "rejected" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs text-destructive hover:bg-destructive/5 border-destructive/30"
+                  disabled={isUpdating}
+                  onClick={() => updateStatus(order.id, "rejected")}
+                >
+                  {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3 mr-1" />}
+                  Reject
+                </Button>
+              )}
+              {order.status !== "pending" && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 text-xs text-muted-foreground"
+                  disabled={isUpdating}
+                  onClick={() => updateStatus(order.id, "pending")}
+                >
+                  Reset
+                </Button>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function AdminPage() {
   const { user, isAuthenticated, isAdmin, loginUrl } = useAuth();
@@ -859,8 +999,24 @@ export default function AdminPage() {
           )}
 
           {/* Help note */}
-          <div className="mt-12 text-center text-xs text-muted-foreground/60">
+          <div className="mt-6 mb-2 text-center text-xs text-muted-foreground/60">
             Hover any lesson or module to reveal edit and delete actions.
+          </div>
+
+          {/* Orders management */}
+          <div className="mt-12">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-green-50 border border-green-200 rounded-xl flex items-center justify-center">
+                <ShoppingBag className="w-4 h-4 text-green-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold font-serif">Order Approvals</h2>
+                <p className="text-sm text-muted-foreground">
+                  Approve payment to grant course access, or reject to deny it.
+                </p>
+              </div>
+            </div>
+            <OrdersManager />
           </div>
         </div>
       </main>
