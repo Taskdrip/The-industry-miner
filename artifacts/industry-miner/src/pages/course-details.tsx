@@ -1,4 +1,5 @@
 import { useRoute } from "wouter";
+import { formatNairaFromKobo } from "@/lib/currency";
 import { useGetCourse } from "@workspace/api-client-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -24,10 +25,7 @@ export default function CourseDetails() {
     return <div className="min-h-screen flex items-center justify-center">Course not found.</div>;
   }
 
-  const priceFormatted = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(course.priceCents / 100);
+  const priceFormatted = formatNairaFromKobo(course.priceCents);
 
   return (
     <div className="min-h-screen flex flex-col font-sans">
@@ -149,7 +147,7 @@ export default function CourseDetails() {
                         <div className="text-4xl font-bold text-secondary">{priceFormatted}</div>
                         {course.originalPriceCents && (
                           <div className="text-lg text-muted-foreground line-through mb-1">
-                            ${(course.originalPriceCents / 100).toFixed(2)}
+                            {formatNairaFromKobo(course.originalPriceCents)}
                           </div>
                         )}
                       </div>

@@ -2,6 +2,7 @@ import type { Course } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import { Star, Clock, Users, PlayCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { formatNairaFromKobo } from "@/lib/currency";
 
 interface CourseCardProps {
   course: Course;
@@ -9,16 +10,10 @@ interface CourseCardProps {
 }
 
 export default function CourseCard({ course, featured = false }: CourseCardProps) {
-  const priceFormatted = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(course.priceCents / 100);
+  const priceFormatted = formatNairaFromKobo(course.priceCents);
 
-  const originalPriceFormatted = course.originalPriceCents 
-    ? new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(course.originalPriceCents / 100)
+  const originalPriceFormatted = course.originalPriceCents
+    ? formatNairaFromKobo(course.originalPriceCents)
     : null;
 
   return (

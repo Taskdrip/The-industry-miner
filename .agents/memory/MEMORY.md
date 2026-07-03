@@ -1,0 +1,2 @@
+- [Industry Miner project setup](project-setup.md) — PORT/BASE_PATH must be injected in workflow commands; artifact workflows not auto-registered until `createArtifact` is called.
+- [Admin panel API field names](admin-api-fields.md) — course detail returns `curriculum` (not `curriculumModules`); DELETE /admin/lessons/:id returns 204 No Content so apiFetch must skip res.json() on 204.
