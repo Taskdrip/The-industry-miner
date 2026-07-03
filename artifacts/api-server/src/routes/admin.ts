@@ -116,6 +116,66 @@ router.post(
 );
 
 router.patch(
+  "/admin/modules/:id",
+  requireAdmin,
+  async (req: Request, res: Response): Promise<void> => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
+
+    const { title } = req.body as { title?: unknown };
+    if (typeof title !== "string" || !title.trim()) {
+      res.status(400).json({ error: "title is required" });
+      return;
+    }
+
+    const [module_] = await db
+      .update(courseCurriculumModulesTable)
+      .set({ title: title.trim() })
+      .where(eq(courseCurriculumModulesTable.id, id))
+      .returning();
+
+    if (!module_) {
+      res.status(404).json({ error: "Module not found" });
+      return;
+    }
+
+    res.json({ id: module_.id, title: module_.title, lessonsCount: module_.lessonsCount });
+  },
+);
+
+router.delete(
+  "/admin/modules/:id",
+  requireAdmin,
+  async (req: Request, res: Response): Promise<void> => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
+
+    // Delete all lessons in the module first
+    await db
+      .delete(courseLessonsTable)
+      .where(eq(courseLessonsTable.moduleId, id));
+
+    const [module_] = await db
+      .delete(courseCurriculumModulesTable)
+      .where(eq(courseCurriculumModulesTable.id, id))
+      .returning();
+
+    if (!module_) {
+      res.status(404).json({ error: "Module not found" });
+      return;
+    }
+
+    res.status(204).send();
+  },
+);
+
+router.patch(
   "/admin/lessons/:id",
   requireAdmin,
   async (req: Request, res: Response): Promise<void> => {

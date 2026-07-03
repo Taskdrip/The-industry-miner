@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import logoUrl from "@assets/brand/logo.png";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Shield } from "lucide-react";
+import { Menu, X, LogOut, Shield, ChevronDown, Gem } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -17,6 +17,7 @@ import AuthModal from "@/components/auth/AuthModal";
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [masterclassOpen, setMasterclassOpen] = useState(false);
   const [authModal, setAuthModal] = useState<{ open: boolean; tab: "login" | "signup" }>({ open: false, tab: "login" });
   const { user, isAuthenticated, isAdmin, logoutUrl } = useAuth();
 
@@ -35,7 +36,7 @@ export default function Header() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-white/95 backdrop-blur-md shadow-sm py-3" : "bg-transparent py-5"
+        isScrolled ? "bg-white/97 backdrop-blur-md shadow-[0_1px_0_0_rgba(0,0,0,0.06)] py-3" : "bg-transparent py-5"
       }`}
     >
       <div className="container mx-auto px-4 max-w-7xl flex items-center justify-between">
@@ -45,12 +46,37 @@ export default function Header() {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8">
-          <Link href="#masterclasses" className={`text-sm font-semibold hover:text-primary transition-colors ${navTextClass}`}>
-            Masterclasses
-          </Link>
-          <Link href="/jewellery-masterclass" className={`text-sm font-semibold hover:text-primary transition-colors ${navTextClass}`}>
-            Jewellery
-          </Link>
+          {/* Masterclasses dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={`flex items-center gap-1 text-sm font-semibold hover:text-primary transition-colors outline-none ${navTextClass}`}
+              >
+                Masterclasses
+                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56 mt-1">
+              <Link href="/jewellery-masterclass">
+                <DropdownMenuItem className="cursor-pointer gap-2.5 py-3">
+                  <div className="w-7 h-7 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Gem className="w-3.5 h-3.5 text-amber-600" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-sm">Jewellery Masterclass</div>
+                    <div className="text-xs text-muted-foreground">1-Year Subscription · ₦100,000</div>
+                  </div>
+                </DropdownMenuItem>
+              </Link>
+              <DropdownMenuSeparator />
+              <Link href="#masterclasses">
+                <DropdownMenuItem className="cursor-pointer text-sm text-muted-foreground">
+                  View all masterclasses
+                </DropdownMenuItem>
+              </Link>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Link href="#toolkits" className={`text-sm font-semibold hover:text-primary transition-colors ${navTextClass}`}>
             Toolkits
           </Link>
@@ -78,36 +104,42 @@ export default function Header() {
                   <div className="px-3 py-2">
                     <p className="text-sm font-semibold truncate">{user?.firstName} {user?.lastName}</p>
                     <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                    {isAdmin && (
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full mt-1 inline-block">Admin</span>
-                    )}
                   </div>
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <Link href="/admin">
+                        <DropdownMenuItem className="cursor-pointer gap-2">
+                          <Shield className="w-4 h-4 text-primary" />
+                          <span className="font-semibold">Admin Panel</span>
+                        </DropdownMenuItem>
+                      </Link>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/admin" className="flex items-center gap-2 cursor-pointer">
-                      <Shield className="w-4 h-4" />
-                      {isAdmin ? "Admin Panel" : "My Courses"}
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <a href={logoutUrl} className="flex items-center gap-2 text-destructive cursor-pointer">
+                  <a href={logoutUrl}>
+                    <DropdownMenuItem className="cursor-pointer gap-2 text-destructive focus:text-destructive">
                       <LogOut className="w-4 h-4" />
                       Sign Out
-                    </a>
-                  </DropdownMenuItem>
+                    </DropdownMenuItem>
+                  </a>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <>
                 <Button
-                  variant={isScrolled ? "ghost" : "link"}
-                  className={isScrolled ? "text-secondary" : "text-white"}
+                  variant="ghost"
+                  size="sm"
+                  className={`font-semibold ${isScrolled ? "text-secondary hover:text-secondary" : "text-white hover:text-white hover:bg-white/10"}`}
                   onClick={() => setAuthModal({ open: true, tab: "login" })}
                 >
                   Log in
                 </Button>
-                <Button onClick={() => setAuthModal({ open: true, tab: "signup" })}>
+                <Button
+                  size="sm"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-sm"
+                  onClick={() => setAuthModal({ open: true, tab: "signup" })}
+                >
                   Get Started
                 </Button>
               </>
@@ -115,24 +147,47 @@ export default function Header() {
           </div>
         </nav>
 
-        {/* Mobile Toggle */}
-        <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-          {mobileMenuOpen ? (
-            <X className={isScrolled ? "text-secondary" : "text-white"} />
-          ) : (
-            <Menu className={isScrolled ? "text-secondary" : "text-white"} />
-          )}
+        {/* Mobile menu toggle */}
+        <button
+          className={`md:hidden p-2 rounded-lg transition-colors ${isScrolled ? "text-secondary hover:bg-muted" : "text-white hover:bg-white/10"}`}
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="absolute top-full left-0 right-0 bg-white shadow-lg py-4 px-4 flex flex-col gap-3 md:hidden border-t">
-          <Link href="#masterclasses" className="text-secondary font-semibold p-2" onClick={() => setMobileMenuOpen(false)}>Masterclasses</Link>
-          <Link href="/jewellery-masterclass" className="text-secondary font-semibold p-2" onClick={() => setMobileMenuOpen(false)}>Jewellery Masterclass</Link>
-          <Link href="#toolkits" className="text-secondary font-semibold p-2" onClick={() => setMobileMenuOpen(false)}>Toolkits</Link>
-          <Link href="#mentorship" className="text-secondary font-semibold p-2" onClick={() => setMobileMenuOpen(false)}>Mentorship</Link>
-          <hr className="my-1" />
+        <div className="absolute top-full left-0 right-0 bg-white shadow-lg py-4 px-4 flex flex-col gap-1 md:hidden border-t border-border">
+          {/* Masterclasses section */}
+          <button
+            onClick={() => setMasterclassOpen(!masterclassOpen)}
+            className="flex items-center justify-between text-secondary font-semibold p-2 rounded-lg hover:bg-muted transition-colors"
+          >
+            Masterclasses
+            <ChevronDown className={`w-4 h-4 transition-transform ${masterclassOpen ? "rotate-180" : ""}`} />
+          </button>
+          {masterclassOpen && (
+            <Link
+              href="/jewellery-masterclass"
+              className="flex items-center gap-3 px-4 py-3 ml-2 rounded-lg bg-amber-50 border border-amber-100"
+              onClick={() => { setMobileMenuOpen(false); setMasterclassOpen(false); }}
+            >
+              <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+                <Gem className="w-4 h-4 text-amber-600" />
+              </div>
+              <div>
+                <div className="font-semibold text-sm text-secondary">Jewellery Masterclass</div>
+                <div className="text-xs text-muted-foreground">1-Year · ₦100,000</div>
+              </div>
+            </Link>
+          )}
+
+          <Link href="#toolkits" className="text-secondary font-semibold p-2 rounded-lg hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Toolkits</Link>
+          <Link href="#mentorship" className="text-secondary font-semibold p-2 rounded-lg hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Mentorship</Link>
+
+          <hr className="my-2 border-border" />
           {isAuthenticated ? (
             <>
               <div className="flex items-center gap-3 p-2">
@@ -146,11 +201,11 @@ export default function Header() {
                 </div>
               </div>
               {isAdmin && (
-                <Link href="/admin" className="flex items-center gap-2 p-2 text-secondary font-semibold" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/admin" className="flex items-center gap-2 p-2 text-secondary font-semibold rounded-lg hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>
                   <Shield className="w-4 h-4" /> Admin Panel
                 </Link>
               )}
-              <a href={logoutUrl} className="flex items-center gap-2 p-2 text-destructive font-semibold">
+              <a href={logoutUrl} className="flex items-center gap-2 p-2 text-destructive font-semibold rounded-lg hover:bg-destructive/5">
                 <LogOut className="w-4 h-4" /> Sign Out
               </a>
             </>

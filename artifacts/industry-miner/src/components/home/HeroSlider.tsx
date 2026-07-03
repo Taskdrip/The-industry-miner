@@ -19,7 +19,7 @@ const slides = [
     image: "https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=1600&q=80",
     badge: "🔥 Limited Seats Available",
     title: "TIM Jewellery Masterclass",
-    description: "Build a jewellery brand that prints money. Zero experience needed — start, brand and sell jewellery profitably. Now ₦69,000.",
+    description: "Build a jewellery brand that prints money. Zero experience needed — start, brand and sell jewellery profitably. 1-Year Subscription · ₦100,000.",
     cta: "View the Masterclass",
     ctaHref: "/jewellery-masterclass",
     external: false,
@@ -90,7 +90,7 @@ export default function HeroSlider() {
               transform: index === currentSlide ? "scale(1)" : "scale(1.05)",
             }}
           />
-          <div className={`absolute inset-0 ${s.id === 5 ? "bg-gradient-to-r from-black/85 via-black/60 to-black/30" : "bg-gradient-to-r from-secondary/90 via-secondary/70 to-transparent"}`} />
+          <div className={`absolute inset-0 ${s.id === 5 ? "bg-gradient-to-r from-black/88 via-black/65 to-black/25" : "bg-gradient-to-r from-secondary/92 via-secondary/72 to-transparent"}`} />
         </div>
       ))}
 
@@ -101,75 +101,82 @@ export default function HeroSlider() {
           className="max-w-2xl"
           style={{ animation: "fadeSlideUp 0.7s ease-out both" }}
         >
-          {isJewellery ? (
-            <div className="inline-flex items-center gap-2 bg-amber-400/20 text-amber-400 border border-amber-400/40 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6">
-              <Gem className="w-3 h-3" />
-              {slide.badge}
-            </div>
-          ) : (
-            <div className="inline-block bg-primary/20 text-primary border border-primary/30 px-3 py-1 rounded-full text-sm font-semibold tracking-wider uppercase mb-6 backdrop-blur-sm">
-              {slide.badge}
-            </div>
-          )}
+          {/* Badge */}
+          <div className={`inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border ${
+            isJewellery
+              ? "bg-amber-400/15 border-amber-400/40 text-amber-300"
+              : "bg-white/10 border-white/20 text-white/80"
+          }`}>
+            {isJewellery && <Gem className="w-3 h-3" />}
+            {slide.badge}
+          </div>
 
+          {/* Title */}
           <h1
-            className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight font-serif drop-shadow-lg"
-            style={isJewellery ? { background: "linear-gradient(135deg,#fff 0%,#e8e8e8 40%,#C9A14A 70%,#e0bc72 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" } : undefined}
+            className="text-4xl md:text-6xl font-bold leading-tight mb-5 text-white font-serif"
+            style={isJewellery ? { background: "linear-gradient(135deg, #fff 0%, #f5e6c8 50%, #C9A14A 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" } : {}}
           >
             {slide.title}
           </h1>
 
-          <p className="text-xl md:text-2xl text-white/90 mb-10 leading-relaxed font-light">
+          {/* Description */}
+          <p className={`text-lg leading-relaxed mb-8 max-w-lg ${isJewellery ? "text-white/70" : "text-white/80"}`}>
             {slide.description}
           </p>
 
-          <div className="flex gap-4 flex-wrap">
+          {/* CTA */}
+          <div className="flex items-center gap-4">
             {isJewellery ? (
-              <Link href="/jewellery-masterclass">
-                <Button
-                  size="lg"
-                  className="h-14 px-8 text-lg font-semibold shadow-xl"
-                  style={{ background: "#C9A14A", color: "#000" }}
-                >
-                  🚀 {slide.cta}
-                </Button>
+              <Link href={slide.ctaHref}>
+                <button className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-black font-bold text-sm uppercase tracking-wider px-8 py-4 rounded-full transition-all shadow-2xl shadow-amber-500/25">
+                  {slide.cta} →
+                </button>
               </Link>
-            ) : (
-              <a href={slide.ctaHref}>
-                <Button size="lg" className="h-14 px-8 text-lg font-semibold shadow-xl shadow-primary/20">
+            ) : slide.external ? (
+              <a href={slide.ctaHref} target="_blank" rel="noopener noreferrer">
+                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-xl">
                   {slide.cta}
                 </Button>
               </a>
+            ) : (
+              <Link href={slide.ctaHref}>
+                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-xl">
+                  {slide.cta}
+                </Button>
+              </Link>
             )}
           </div>
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="absolute bottom-8 right-8 z-30 flex gap-3">
-        <button
-          onClick={prevSlide}
-          className="h-11 w-11 rounded-full border border-white/20 bg-black/30 backdrop-blur-md flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <button
-          onClick={nextSlide}
-          className="h-11 w-11 rounded-full border border-white/20 bg-black/30 backdrop-blur-md flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-colors"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
+      {/* Navigation arrows */}
+      <button
+        onClick={prevSlide}
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors border border-white/20"
+        aria-label="Previous slide"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+      <button
+        onClick={nextSlide}
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors border border-white/20"
+        aria-label="Next slide"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
 
-      {/* Indicators */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex gap-2">
+      {/* Dots */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              index === currentSlide ? "w-8 bg-primary" : "w-2 bg-white/40 hover:bg-white/60"
+            className={`transition-all rounded-full ${
+              index === currentSlide
+                ? "w-6 h-2 bg-primary"
+                : "w-2 h-2 bg-white/30 hover:bg-white/50"
             }`}
+            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
