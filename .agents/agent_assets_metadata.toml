@@ -1,0 +1,62 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "n5k7t-VK4IhJBJO_qnUGz"
+uri = "file://artifacts/industry-miner/public/images/hero-1.png"
+type = "image"
+title = "Business meeting masterclass"
+
+[[generated]]
+id = "vW3qdxq7o3R14MN0-QE_5"
+uri = "file://artifacts/industry-miner/public/images/hero-2.png"
+type = "image"
+title = "Mentorship coaching session"
+
+[[generated]]
+id = "d9S3qtN9XoEdORRlgCMct"
+uri = "file://artifacts/industry-miner/public/images/hero-3.png"
+type = "image"
+title = "Entrepreneur working toolkit"
+
+[[generated]]
+id = "tm5fJJO_krbr8pUcczsm_"
+uri = "file://artifacts/industry-miner/public/images/hero-4.png"
+type = "image"
+title = "Funding access charts"
+
+[[generated]]
+id = "VWDHbOPaqFyyXb2MWGyT2"
+uri = "file://attached_assets/courses/business-fundamentals.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "semZXR_PWjCNbAD51nkkd"
+uri = "file://attached_assets/courses/finance-funding.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "kpmcl9-rrtdGbx_8E8WD4"
+uri = "file://attached_assets/courses/leadership.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "MnrAAUlPBL9wgmFiC5tkA"
+uri = "file://attached_assets/courses/legal-contracts.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "u5n9tjQYcePewkVdvPXct"
+uri = "file://attached_assets/courses/sales-networking.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "adj6YodGR6ZDYUtlaMIr2"
+uri = "file://attached_assets/courses/industry-toolkits.png"
+type = "image"
+title = "generated_image"

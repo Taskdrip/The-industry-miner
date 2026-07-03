@@ -10,6 +10,14 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: courses
+    description: Course catalog operations
+  - name: categories
+    description: Course category operations
+  - name: testimonials
+    description: Learner testimonials
+  - name: stats
+    description: Platform-wide statistics
 paths:
   /healthz:
     get:
@@ -24,6 +32,94 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /courses:
+    get:
+      operationId: listCourses
+      tags: [courses]
+      summary: List courses
+      description: Returns all courses, optionally filtered by category or featured flag
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: featured
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+  /courses/{id}:
+    get:
+      operationId: getCourse
+      tags: [courses]
+      summary: Get a course by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Course detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDetail"
+        "404":
+          description: Not found
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List course categories
+      description: Returns categories with course counts
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+  /testimonials:
+    get:
+      operationId: listTestimonials
+      tags: [testimonials]
+      summary: List learner testimonials
+      responses:
+        "200":
+          description: List of testimonials
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Testimonial"
+  /stats/summary:
+    get:
+      operationId: getStatsSummary
+      tags: [stats]
+      summary: Platform-wide stats summary
+      description: Aggregate counts used for landing page trust indicators
+      responses:
+        "200":
+          description: Stats summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsSummary"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +129,145 @@ components:
           type: string
       required:
         - status
+    Course:
+      type: object
+      required:
+        - id
+        - title
+        - slug
+        - summary
+        - category
+        - instructorName
+        - level
+        - lessonsCount
+        - durationWeeks
+        - studentsCount
+        - rating
+        - reviewsCount
+        - priceCents
+        - originalPriceCents
+        - isFree
+        - isFeatured
+        - imageUrl
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        summary:
+          type: string
+        category:
+          type: string
+        instructorName:
+          type: string
+        level:
+          type: string
+        lessonsCount:
+          type: integer
+        durationWeeks:
+          type: integer
+        studentsCount:
+          type: integer
+        rating:
+          type: number
+        reviewsCount:
+          type: integer
+        priceCents:
+          type: integer
+        originalPriceCents:
+          type: ["integer", "null"]
+        isFree:
+          type: boolean
+        isFeatured:
+          type: boolean
+        imageUrl:
+          type: string
+    CourseDetail:
+      allOf:
+        - $ref: "#/components/schemas/Course"
+        - type: object
+          required:
+            - description
+            - whatYouWillLearn
+            - curriculum
+          properties:
+            description:
+              type: string
+            whatYouWillLearn:
+              type: array
+              items:
+                type: string
+            curriculum:
+              type: array
+              items:
+                $ref: "#/components/schemas/CurriculumModule"
+    CurriculumModule:
+      type: object
+      required:
+        - title
+        - lessonsCount
+      properties:
+        title:
+          type: string
+        lessonsCount:
+          type: integer
+    Category:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - courseCount
+        - icon
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        courseCount:
+          type: integer
+        icon:
+          type: string
+    Testimonial:
+      type: object
+      required:
+        - id
+        - name
+        - role
+        - quote
+        - rating
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role:
+          type: string
+        quote:
+          type: string
+        rating:
+          type: number
+    StatsSummary:
+      type: object
+      required:
+        - enrolledLearners
+        - totalCourses
+        - totalCategories
+        - averageRating
+        - expertInstructors
+      properties:
+        enrolledLearners:
+          type: integer
+        totalCourses:
+          type: integer
+        totalCategories:
+          type: integer
+        averageRating:
+          type: number
+        expertInstructors:
+          type: integer
 
