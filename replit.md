@@ -23,7 +23,14 @@ An online course platform with a browsable course catalog, course detail pages, 
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/industry-miner/src/pages/home.tsx` — public landing page and Website Studio entry point
+- `artifacts/industry-miner/src/pages/website-studio.tsx` — searchable niche template library and saved websites
+- `artifacts/industry-miner/src/pages/website-editor.tsx` — draft editor, live preview, save, and publish actions
+- `artifacts/industry-miner/src/pages/public-website.tsx` — published sites, PWA manifest, install prompt, and service-worker registration
+- `artifacts/api-server/src/routes/websites.ts` — template, website lifecycle, public-site, and manifest endpoints
+- `lib/db/src/schema/websites.ts` — owner-scoped website drafts and published snapshots
+- `lib/api-spec/openapi.yaml` — source of truth for generated API client and validation schemas
+- `artifacts/industry-miner/src/index.css` — shared app and website-studio styles
 
 ## Architecture decisions
 
@@ -31,7 +38,7 @@ _Populate as you build — non-obvious choices a reader couldn't infer from the 
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+The Industry Miner combines expert-led business learning and resources with a Website Studio. Signed-in users can browse niche starter sites, install one, edit pages and design settings, save drafts, and publish an installable PWA.
 
 ## User preferences
 
@@ -39,7 +46,8 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Website drafts and published snapshots are stored separately; publishing makes the saved draft public.
+- Public PWA pages register `artifacts/industry-miner/public/service-worker.js`; it caches the app shell and only public website and manifest API responses.
 
 ## Pointers
 

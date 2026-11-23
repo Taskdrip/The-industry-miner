@@ -15,12 +15,12 @@ export default function CallToAction() {
           Join 28,000+ entrepreneurs who are building profitable businesses with our expert-led masterclasses and toolkits.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button size="lg" className="h-14 px-8 text-lg w-full sm:w-auto font-semibold">
-            Explore Masterclasses
-          </Button>
-          <Button size="lg" variant="outline" className="h-14 px-8 text-lg w-full sm:w-auto text-secondary-foreground border-white/20 hover:bg-white/10 hover:text-white">
-            View Mentorship Plans
-          </Button>
+          <Link href="#courses" data-testid="link-cta-masterclasses">
+            <Button size="lg" className="h-14 px-8 text-lg w-full sm:w-auto font-semibold">Explore Masterclasses</Button>
+          </Link>
+          <Link href="/studio" data-testid="link-cta-website-studio">
+            <Button size="lg" variant="outline" className="h-14 px-8 text-lg w-full sm:w-auto text-secondary-foreground border-white/20 hover:bg-white/10 hover:text-white">Build your website</Button>
+          </Link>
         </div>
       </div>
     </section>

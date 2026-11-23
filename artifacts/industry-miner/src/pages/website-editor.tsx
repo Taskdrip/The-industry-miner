@@ -33,6 +33,7 @@ export default function WebsiteEditor() {
   const [siteName, setSiteName] = useState("");
   const [activePage, setActivePage] = useState("");
   const [panel, setPanel] = useState<"content" | "design" | "pages">("content");
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
   const [notice, setNotice] = useState("");
   const initialized = useRef("");
   const savedSnapshot = useRef("");
@@ -192,8 +193,8 @@ export default function WebsiteEditor() {
           <div className="sidebar-bottom"><span className="studio-mono">DRAFT / {dirty ? "CHANGES PENDING" : "IN SYNC"}</span><button onClick={() => { setLocation(`/sites/${slug}/${page?.slug ?? "home"}`); }} disabled={!published} title={published ? "Open public site" : "Publish this website to preview it publicly"} data-testid="button-open-public"><ExternalLink size={14} /> Public site</button></div>
         </aside>
         <section className="preview-stage" aria-label="Live website preview">
-          <div className="preview-stage-head"><div><span className="studio-kicker">LIVE PREVIEW</span><strong>{page?.title ?? document.appName}</strong></div><div className="device-switch"><span className="device-active"><Eye size={15} /> Desktop</span><span><Smartphone size={14} /> Mobile ready</span></div><span className="preview-draft-tag"><span /> DRAFT</span></div>
-          <div className="preview-canvas"><div className="site-frame"><WebsiteRenderer document={document} slug={slug} page={page} preview /></div></div>
+          <div className="preview-stage-head"><div><span className="studio-kicker">LIVE PREVIEW</span><strong>{page?.title ?? document.appName}</strong></div><div className="device-switch" role="group" aria-label="Preview size"><button type="button" className={previewDevice === "desktop" ? "device-active" : ""} onClick={() => setPreviewDevice("desktop")} aria-pressed={previewDevice === "desktop"} data-testid="button-preview-desktop"><Eye size={15} /> Desktop</button><button type="button" className={previewDevice === "mobile" ? "device-active" : ""} onClick={() => setPreviewDevice("mobile")} aria-pressed={previewDevice === "mobile"} data-testid="button-preview-mobile"><Smartphone size={14} /> Mobile</button></div><span className="preview-draft-tag"><span /> DRAFT</span></div>
+          <div className={`preview-canvas ${previewDevice === "mobile" ? "preview-mobile" : ""}`}><div className={`site-frame ${previewDevice === "mobile" ? "site-frame-mobile" : ""}`}><WebsiteRenderer document={document} slug={slug} page={page} preview /></div></div>
           <div className="preview-stage-footer"><span><Eye size={14} /> Preview only — this draft is private until published.</span><span>last saved {website.updatedAt ? new Date(website.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "not yet"}</span></div>
         </section>
       </div>

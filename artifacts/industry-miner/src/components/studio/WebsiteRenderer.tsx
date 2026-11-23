@@ -6,11 +6,23 @@ import { ArrowUpRight } from "lucide-react";
 const safeHex = (value: string, fallback: string) => /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
 const safeImage = (value?: string | null) => {
   if (!value) return "";
+  if (value.startsWith("/") && !value.startsWith("//")) return value;
   try {
     const url = new URL(value);
     return ["https:", "http:"].includes(url.protocol) ? url.toString() : "";
   } catch {
     return "";
+  }
+};
+const safeLink = (value?: string | null) => {
+  if (!value) return null;
+  if (value.startsWith("/") && !value.startsWith("//")) return { href: value, external: false };
+  if (/^#[a-z0-9_-]+$/i.test(value)) return { href: value, external: false };
+  try {
+    const url = new URL(value);
+    return ["https:", "http:"].includes(url.protocol) ? { href: url.href, external: true } : null;
+  } catch {
+    return null;
   }
 };
 const fontMap = {
@@ -23,17 +35,21 @@ type Props = { document: WebsiteDocument; slug: string; page?: WebsitePage; prev
 function Section({ section, preview }: { section: WebsiteSection; preview?: boolean }) {
   if (!section.enabled) return null;
   const image = safeImage(section.imageUrl);
-  const href = section.buttonHref?.startsWith("/") ? section.buttonHref : "";
+  const link = safeLink(section.buttonHref);
   const cards = section.items ?? [];
   return (
-    <section className={`site-section site-${section.type}`} data-testid={`site-section-${section.id}`}>
+    <section id={section.id} className={`site-section site-${section.type}`} data-testid={`site-section-${section.id}`}>
       <div className="site-section-copy">
         <p className="site-eyebrow">{section.type}</p>
         <h2>{section.heading}</h2>
         <p className="site-body">{section.body}</p>
         {section.buttonLabel && (
-          href && !preview
-            ? <Link href={href} className="site-action" data-testid={`site-action-${section.id}`}>{section.buttonLabel}<ArrowUpRight size={15} /></Link>
+          link && !preview
+            ? link.external
+              ? <a href={link.href} target="_blank" rel="noopener noreferrer" className="site-action" data-testid={`site-action-${section.id}`}>{section.buttonLabel}<ArrowUpRight size={15} /></a>
+              : link.href.startsWith("#")
+                ? <a href={link.href} className="site-action" data-testid={`site-action-${section.id}`}>{section.buttonLabel}<ArrowUpRight size={15} /></a>
+                : <Link href={link.href} className="site-action" data-testid={`site-action-${section.id}`}>{section.buttonLabel}<ArrowUpRight size={15} /></Link>
             : <span className="site-action">{section.buttonLabel}<ArrowUpRight size={15} /></span>
         )}
       </div>
