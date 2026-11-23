@@ -53,7 +53,7 @@ function Section({ section, preview }: { section: WebsiteSection; preview?: bool
             : <span className="site-action">{section.buttonLabel}<ArrowUpRight size={15} /></span>
         )}
       </div>
-      {image && <div className="site-image-wrap"><img src={image} alt="" className="site-image" /></div>}
+      {image && <div className="site-image-wrap"><img src={image} alt="" className="site-image" loading={preview ? "eager" : "lazy"} decoding="async" /></div>}
       {cards.length > 0 && <div className="site-item-grid">{cards.map((item, index) => {
         const itemImage = safeImage(item.imageUrl);
         return <article className="site-item" key={`${section.id}-${index}`} data-testid={`site-item-${section.id}-${index}`}>

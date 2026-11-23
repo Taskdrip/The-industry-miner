@@ -12,7 +12,7 @@ import {
   CreateOrderBody,
   CreateOrderResponse,
   ListMyOrdersResponse,
-  PaystackWebhookInput,
+  ReceivePaystackWebhookBody,
   VerifyOrderPaymentParams,
   VerifyOrderPaymentResponse,
 } from "@workspace/api-zod";
@@ -345,7 +345,7 @@ router.post(
 router.post(
   "/paystack/webhook",
   async (req: Request, res: Response): Promise<void> => {
-    const parsed = PaystackWebhookInput.safeParse(req.body);
+    const parsed = ReceivePaystackWebhookBody.safeParse(req.body);
     const body = rawBody(req);
     if (!parsed.success || !body) {
       res.status(400).json({ error: "Invalid webhook request" });
