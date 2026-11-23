@@ -4,9 +4,10 @@ An online course platform with a browsable course catalog, course detail pages, 
 
 ## Run & Operate
 
+- Fresh import: run `pnpm install --frozen-lockfile`, then `pnpm --filter @workspace/db run push` to create the development database schema. The new database starts empty; courses and testimonials are not seeded automatically.
 - Workflows: `artifacts/api-server: API Server` (port 8080) and `artifacts/industry-miner: web` (port 23279) — both managed by Replit
 - `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
+- `PORT=23279 BASE_PATH=/ pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — auto-provisioned by Replit; `SESSION_SECRET` — set in Replit Secrets
