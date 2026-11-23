@@ -33,16 +33,24 @@ import type {
   CourseDetail,
   CreateLessonBody,
   CreateModuleBody,
-  CreateOrderBody,
   ErrorEnvelope,
   HandleBrowserLoginCallbackParams,
   HealthStatus,
+  IntegrationCredentialInput,
+  IntegrationProviderId,
+  IntegrationSetting,
+  IntegrationSettingsResponse,
+  IntegrationTestResult,
+  IntegrationToggleInput,
   Lesson,
   ListCoursesParams,
   LogoutSuccess,
   MobileTokenExchangeRequest,
   MobileTokenExchangeSuccess,
   Order,
+  OrderCheckout,
+  OrderInput,
+  PaystackWebhookInput,
   PublishedWebsite,
   SiteTemplate,
   StatsSummary,
@@ -1728,6 +1736,397 @@ export function useListModuleLessons<TData = Awaited<ReturnType<typeof listModul
 
 
 
+export const getListAdminIntegrationsUrl = () => {
+
+
+
+
+  return `/api/admin/integrations`
+}
+
+/**
+ * @summary List provider configuration status without exposing credentials
+ */
+export const listAdminIntegrations = async ( options?: Parameters<typeof customFetch>[1]): Promise<IntegrationSettingsResponse> => {
+
+  return customFetch<IntegrationSettingsResponse>(getListAdminIntegrationsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminIntegrationsQueryKey = () => {
+    return [
+    `/api/admin/integrations`
+    ] as const;
+    }
+
+
+export const getListAdminIntegrationsQueryOptions = <TData = Awaited<ReturnType<typeof listAdminIntegrations>>, TError = ErrorType<void>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminIntegrations>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminIntegrationsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminIntegrations>>> = ({ signal }) => listAdminIntegrations({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminIntegrations>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListAdminIntegrationsQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminIntegrations>>>
+export type ListAdminIntegrationsQueryError = ErrorType<void>
+
+
+/** @summary List provider configuration status without exposing credentials */
+export function useListAdminIntegrations<TData = Awaited<ReturnType<typeof listAdminIntegrations>>, TError = ErrorType<void>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminIntegrations>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAdminIntegrations>>,
+          TError,
+          Awaited<ReturnType<typeof listAdminIntegrations>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/** @summary List provider configuration status without exposing credentials */
+export function useListAdminIntegrations<TData = Awaited<ReturnType<typeof listAdminIntegrations>>, TError = ErrorType<void>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminIntegrations>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAdminIntegrations>>,
+          TError,
+          Awaited<ReturnType<typeof listAdminIntegrations>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/** @summary List provider configuration status without exposing credentials */
+export function useListAdminIntegrations<TData = Awaited<ReturnType<typeof listAdminIntegrations>>, TError = ErrorType<void>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminIntegrations>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/** @summary List provider configuration status without exposing credentials */
+export function useListAdminIntegrations<TData = Awaited<ReturnType<typeof listAdminIntegrations>>, TError = ErrorType<void>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminIntegrations>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListAdminIntegrationsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveAdminIntegrationUrl = (providerId: IntegrationProviderId,) => {
+
+
+
+
+  return `/api/admin/integrations/${providerId}`
+}
+
+/**
+ * @summary Add or rotate an encrypted provider credential
+ */
+export const saveAdminIntegration = async (providerId: IntegrationProviderId,
+    integrationCredentialInput: IntegrationCredentialInput, options?: Parameters<typeof customFetch>[1]): Promise<IntegrationSetting> => {
+
+  return customFetch<IntegrationSetting>(getSaveAdminIntegrationUrl(providerId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
+    body: JSON.stringify(integrationCredentialInput)
+  }
+);}
+
+
+
+
+
+export const getSaveAdminIntegrationMutationKey = () => ['saveAdminIntegration'] as const;
+
+export const getSaveAdminIntegrationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAdminIntegration>>, TError,SaveAdminIntegrationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveAdminIntegration>>, TError,SaveAdminIntegrationMutationVariables, TContext> => {
+
+const mutationKey = getSaveAdminIntegrationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveAdminIntegration>>, SaveAdminIntegrationMutationVariables> = (props) => {
+          const {providerId,data} = props ?? {};
+
+          return  saveAdminIntegration(providerId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveAdminIntegrationMutationResult = NonNullable<Awaited<ReturnType<typeof saveAdminIntegration>>>
+    export type SaveAdminIntegrationMutationBody = BodyType<IntegrationCredentialInput>
+    export type SaveAdminIntegrationMutationError = ErrorType<void>
+    export type SaveAdminIntegrationMutationVariables = {providerId: IntegrationProviderId;data: BodyType<IntegrationCredentialInput>}
+
+    /** @summary Add or rotate an encrypted provider credential */
+export const useSaveAdminIntegration = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAdminIntegration>>, TError,SaveAdminIntegrationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof saveAdminIntegration>>,
+        TError,
+        SaveAdminIntegrationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveAdminIntegrationMutationOptions(options), queryClient);
+    }
+
+export const getUpdateAdminIntegrationUrl = (providerId: IntegrationProviderId,) => {
+
+
+
+
+  return `/api/admin/integrations/${providerId}`
+}
+
+/**
+ * @summary Enable or disable a configured provider
+ */
+export const updateAdminIntegration = async (providerId: IntegrationProviderId,
+    integrationToggleInput: IntegrationToggleInput, options?: Parameters<typeof customFetch>[1]): Promise<IntegrationSetting> => {
+
+  return customFetch<IntegrationSetting>(getUpdateAdminIntegrationUrl(providerId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
+    body: JSON.stringify(integrationToggleInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateAdminIntegrationMutationKey = () => ['updateAdminIntegration'] as const;
+
+export const getUpdateAdminIntegrationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminIntegration>>, TError,UpdateAdminIntegrationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAdminIntegration>>, TError,UpdateAdminIntegrationMutationVariables, TContext> => {
+
+const mutationKey = getUpdateAdminIntegrationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAdminIntegration>>, UpdateAdminIntegrationMutationVariables> = (props) => {
+          const {providerId,data} = props ?? {};
+
+          return  updateAdminIntegration(providerId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAdminIntegrationMutationResult = NonNullable<Awaited<ReturnType<typeof updateAdminIntegration>>>
+    export type UpdateAdminIntegrationMutationBody = BodyType<IntegrationToggleInput>
+    export type UpdateAdminIntegrationMutationError = ErrorType<void>
+    export type UpdateAdminIntegrationMutationVariables = {providerId: IntegrationProviderId;data: BodyType<IntegrationToggleInput>}
+
+    /** @summary Enable or disable a configured provider */
+export const useUpdateAdminIntegration = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminIntegration>>, TError,UpdateAdminIntegrationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateAdminIntegration>>,
+        TError,
+        UpdateAdminIntegrationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateAdminIntegrationMutationOptions(options), queryClient);
+    }
+
+export const getDeleteAdminIntegrationUrl = (providerId: IntegrationProviderId,) => {
+
+
+
+
+  return `/api/admin/integrations/${providerId}`
+}
+
+/**
+ * @summary Remove an encrypted provider credential
+ */
+export const deleteAdminIntegration = async (providerId: IntegrationProviderId, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteAdminIntegrationUrl(providerId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteAdminIntegrationMutationKey = () => ['deleteAdminIntegration'] as const;
+
+export const getDeleteAdminIntegrationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAdminIntegration>>, TError,DeleteAdminIntegrationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAdminIntegration>>, TError,DeleteAdminIntegrationMutationVariables, TContext> => {
+
+const mutationKey = getDeleteAdminIntegrationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAdminIntegration>>, DeleteAdminIntegrationMutationVariables> = (props) => {
+          const {providerId} = props ?? {};
+
+          return  deleteAdminIntegration(providerId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAdminIntegrationMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAdminIntegration>>>
+
+    export type DeleteAdminIntegrationMutationError = ErrorType<void>
+    export type DeleteAdminIntegrationMutationVariables = {providerId: IntegrationProviderId}
+
+    /** @summary Remove an encrypted provider credential */
+export const useDeleteAdminIntegration = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAdminIntegration>>, TError,DeleteAdminIntegrationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAdminIntegration>>,
+        TError,
+        DeleteAdminIntegrationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteAdminIntegrationMutationOptions(options), queryClient);
+    }
+
+export const getTestAdminIntegrationUrl = (providerId: IntegrationProviderId,) => {
+
+
+
+
+  return `/api/admin/integrations/${providerId}/test`
+}
+
+/**
+ * @summary Test a provider credential without returning it
+ */
+export const testAdminIntegration = async (providerId: IntegrationProviderId, options?: Parameters<typeof customFetch>[1]): Promise<IntegrationTestResult> => {
+
+  return customFetch<IntegrationTestResult>(getTestAdminIntegrationUrl(providerId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getTestAdminIntegrationMutationKey = () => ['testAdminIntegration'] as const;
+
+export const getTestAdminIntegrationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof testAdminIntegration>>, TError,TestAdminIntegrationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof testAdminIntegration>>, TError,TestAdminIntegrationMutationVariables, TContext> => {
+
+const mutationKey = getTestAdminIntegrationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof testAdminIntegration>>, TestAdminIntegrationMutationVariables> = (props) => {
+          const {providerId} = props ?? {};
+
+          return  testAdminIntegration(providerId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TestAdminIntegrationMutationResult = NonNullable<Awaited<ReturnType<typeof testAdminIntegration>>>
+
+    export type TestAdminIntegrationMutationError = ErrorType<void>
+    export type TestAdminIntegrationMutationVariables = {providerId: IntegrationProviderId}
+
+    /** @summary Test a provider credential without returning it */
+export const useTestAdminIntegration = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof testAdminIntegration>>, TError,TestAdminIntegrationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof testAdminIntegration>>,
+        TError,
+        TestAdminIntegrationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getTestAdminIntegrationMutationOptions(options), queryClient);
+    }
+
 export const getCreateOrderUrl = () => {
 
 
@@ -1737,16 +2136,16 @@ export const getCreateOrderUrl = () => {
 }
 
 /**
- * @summary Create a pending Naira payment order to enroll in a course
+ * @summary Create a Paystack bank-transfer checkout for a course or jewellery masterclass
  */
-export const createOrder = async (createOrderBody: CreateOrderBody, options?: Parameters<typeof customFetch>[1]): Promise<Order> => {
+export const createOrder = async (orderInput: OrderInput, options?: Parameters<typeof customFetch>[1]): Promise<OrderCheckout> => {
 
-  return customFetch<Order>(getCreateOrderUrl(),
+  return customFetch<OrderCheckout>(getCreateOrderUrl(),
   {
     ...options,
     method: 'POST',
     headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
-    body: JSON.stringify(createOrderBody)
+    body: JSON.stringify(orderInput)
   }
 );}
 
@@ -1784,11 +2183,11 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type CreateOrderMutationResult = NonNullable<Awaited<ReturnType<typeof createOrder>>>
-    export type CreateOrderMutationBody = BodyType<CreateOrderBody>
+    export type CreateOrderMutationBody = BodyType<OrderInput>
     export type CreateOrderMutationError = ErrorType<void>
-    export type CreateOrderMutationVariables = {data: BodyType<CreateOrderBody>}
+    export type CreateOrderMutationVariables = {data: BodyType<OrderInput>}
 
-    /** @summary Create a pending Naira payment order to enroll in a course */
+    /** @summary Create a Paystack bank-transfer checkout for a course or jewellery masterclass */
 export const useCreateOrder = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createOrder>>, TError,CreateOrderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
@@ -1900,6 +2299,150 @@ export function useListMyOrders<TData = Awaited<ReturnType<typeof listMyOrders>>
 
 
 
+
+export const getVerifyOrderPaymentUrl = (reference: string,) => {
+
+
+
+
+  return `/api/orders/${reference}/verify`
+}
+
+/**
+ * @summary Verify a Paystack payment before granting access
+ */
+export const verifyOrderPayment = async (reference: string, options?: Parameters<typeof customFetch>[1]): Promise<Order> => {
+
+  return customFetch<Order>(getVerifyOrderPaymentUrl(reference),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getVerifyOrderPaymentMutationKey = () => ['verifyOrderPayment'] as const;
+
+export const getVerifyOrderPaymentMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyOrderPayment>>, TError,VerifyOrderPaymentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyOrderPayment>>, TError,VerifyOrderPaymentMutationVariables, TContext> => {
+
+const mutationKey = getVerifyOrderPaymentMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyOrderPayment>>, VerifyOrderPaymentMutationVariables> = (props) => {
+          const {reference} = props ?? {};
+
+          return  verifyOrderPayment(reference,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyOrderPaymentMutationResult = NonNullable<Awaited<ReturnType<typeof verifyOrderPayment>>>
+
+    export type VerifyOrderPaymentMutationError = ErrorType<void>
+    export type VerifyOrderPaymentMutationVariables = {reference: string}
+
+    /** @summary Verify a Paystack payment before granting access */
+export const useVerifyOrderPayment = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyOrderPayment>>, TError,VerifyOrderPaymentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof verifyOrderPayment>>,
+        TError,
+        VerifyOrderPaymentMutationVariables,
+        TContext
+      > => {
+      return useMutation(getVerifyOrderPaymentMutationOptions(options), queryClient);
+    }
+
+export const getReceivePaystackWebhookUrl = () => {
+
+
+
+
+  return `/api/paystack/webhook`
+}
+
+/**
+ * @summary Receive signed Paystack payment events
+ */
+export const receivePaystackWebhook = async (paystackWebhookInput: PaystackWebhookInput, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getReceivePaystackWebhookUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
+    body: JSON.stringify(paystackWebhookInput)
+  }
+);}
+
+
+
+
+
+export const getReceivePaystackWebhookMutationKey = () => ['receivePaystackWebhook'] as const;
+
+export const getReceivePaystackWebhookMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receivePaystackWebhook>>, TError,ReceivePaystackWebhookMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof receivePaystackWebhook>>, TError,ReceivePaystackWebhookMutationVariables, TContext> => {
+
+const mutationKey = getReceivePaystackWebhookMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof receivePaystackWebhook>>, ReceivePaystackWebhookMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  receivePaystackWebhook(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReceivePaystackWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof receivePaystackWebhook>>>
+    export type ReceivePaystackWebhookMutationBody = BodyType<PaystackWebhookInput>
+    export type ReceivePaystackWebhookMutationError = ErrorType<void>
+    export type ReceivePaystackWebhookMutationVariables = {data: BodyType<PaystackWebhookInput>}
+
+    /** @summary Receive signed Paystack payment events */
+export const useReceivePaystackWebhook = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receivePaystackWebhook>>, TError,ReceivePaystackWebhookMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof receivePaystackWebhook>>,
+        TError,
+        ReceivePaystackWebhookMutationVariables,
+        TContext
+      > => {
+      return useMutation(getReceivePaystackWebhookMutationOptions(options), queryClient);
+    }
 
 export const getListSiteTemplatesUrl = () => {
 

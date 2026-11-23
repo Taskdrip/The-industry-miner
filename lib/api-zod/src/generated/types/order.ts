@@ -5,13 +5,18 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { OrderStatus } from './orderStatus';
 
 export interface Order {
   id: number;
   userId: string;
-  courseId: number;
+  /** @nullable */
+  courseId: number | null;
+  productCode: string;
+  productName: string;
+  paymentProvider: string;
   amountKobo: number;
-  status: string;
+  status: OrderStatus;
   reference: string;
   createdAt: Date;
 }

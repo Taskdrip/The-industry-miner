@@ -326,20 +326,129 @@ export const ListModuleLessonsResponse = zod.array(ListModuleLessonsResponseItem
 
 
 /**
- * @summary Create a pending Naira payment order to enroll in a course
+ * @summary List provider configuration status without exposing credentials
+ */
+export const ListAdminIntegrationsResponseItem = zod.object({
+  "providerId": zod.enum(['paystack', 'paystack_webhook', 'resend', 'openrouter', 'openai', 'anthropic', 'gemini', 'mistral', 'deepseek']),
+  "label": zod.string(),
+  "category": zod.enum(['payments', 'notifications', 'ai']),
+  "description": zod.string(),
+  "configured": zod.boolean(),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['not_configured', 'unverified', 'connected', 'error']),
+  "lastTestedAt": zod.coerce.date().nullable(),
+  "updatedAt": zod.coerce.date().nullable(),
+  "senderEmail": zod.string().email().nullable(),
+  "canTest": zod.boolean()
+})
+export const ListAdminIntegrationsResponse = zod.array(ListAdminIntegrationsResponseItem)
+
+
+/**
+ * @summary Add or rotate an encrypted provider credential
+ */
+export const SaveAdminIntegrationParams = zod.object({
+  "providerId": zod.enum(['paystack', 'paystack_webhook', 'resend', 'openrouter', 'openai', 'anthropic', 'gemini', 'mistral', 'deepseek'])
+})
+
+export const saveAdminIntegrationBodyApiKeyMin = 8;
+export const saveAdminIntegrationBodyApiKeyMax = 4096;
+
+export const saveAdminIntegrationBodySenderEmailMax = 320;
+
+
+
+export const SaveAdminIntegrationBody = zod.object({
+  "apiKey": zod.string().min(saveAdminIntegrationBodyApiKeyMin).max(saveAdminIntegrationBodyApiKeyMax).optional(),
+  "senderEmail": zod.string().email().max(saveAdminIntegrationBodySenderEmailMax).optional()
+})
+
+export const SaveAdminIntegrationResponse = zod.object({
+  "providerId": zod.enum(['paystack', 'paystack_webhook', 'resend', 'openrouter', 'openai', 'anthropic', 'gemini', 'mistral', 'deepseek']),
+  "label": zod.string(),
+  "category": zod.enum(['payments', 'notifications', 'ai']),
+  "description": zod.string(),
+  "configured": zod.boolean(),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['not_configured', 'unverified', 'connected', 'error']),
+  "lastTestedAt": zod.coerce.date().nullable(),
+  "updatedAt": zod.coerce.date().nullable(),
+  "senderEmail": zod.string().email().nullable(),
+  "canTest": zod.boolean()
+})
+
+
+/**
+ * @summary Enable or disable a configured provider
+ */
+export const UpdateAdminIntegrationParams = zod.object({
+  "providerId": zod.enum(['paystack', 'paystack_webhook', 'resend', 'openrouter', 'openai', 'anthropic', 'gemini', 'mistral', 'deepseek'])
+})
+
+export const UpdateAdminIntegrationBody = zod.object({
+  "enabled": zod.boolean()
+})
+
+export const UpdateAdminIntegrationResponse = zod.object({
+  "providerId": zod.enum(['paystack', 'paystack_webhook', 'resend', 'openrouter', 'openai', 'anthropic', 'gemini', 'mistral', 'deepseek']),
+  "label": zod.string(),
+  "category": zod.enum(['payments', 'notifications', 'ai']),
+  "description": zod.string(),
+  "configured": zod.boolean(),
+  "enabled": zod.boolean(),
+  "status": zod.enum(['not_configured', 'unverified', 'connected', 'error']),
+  "lastTestedAt": zod.coerce.date().nullable(),
+  "updatedAt": zod.coerce.date().nullable(),
+  "senderEmail": zod.string().email().nullable(),
+  "canTest": zod.boolean()
+})
+
+
+/**
+ * @summary Remove an encrypted provider credential
+ */
+export const DeleteAdminIntegrationParams = zod.object({
+  "providerId": zod.enum(['paystack', 'paystack_webhook', 'resend', 'openrouter', 'openai', 'anthropic', 'gemini', 'mistral', 'deepseek'])
+})
+
+export const DeleteAdminIntegrationResponse = zod.void()
+
+
+/**
+ * @summary Test a provider credential without returning it
+ */
+export const TestAdminIntegrationParams = zod.object({
+  "providerId": zod.enum(['paystack', 'paystack_webhook', 'resend', 'openrouter', 'openai', 'anthropic', 'gemini', 'mistral', 'deepseek'])
+})
+
+export const TestAdminIntegrationResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Create a Paystack bank-transfer checkout for a course or jewellery masterclass
  */
 export const CreateOrderBody = zod.object({
-  "courseId": zod.number().int()
+  "courseId": zod.number().int().optional(),
+  "productCode": zod.enum(['jewellery-masterclass']).optional()
 })
 
 export const CreateOrderResponse = zod.object({
+  "order": zod.object({
   "id": zod.number().int(),
   "userId": zod.string(),
-  "courseId": zod.number().int(),
+  "courseId": zod.number().int().nullable(),
+  "productCode": zod.string(),
+  "productName": zod.string(),
+  "paymentProvider": zod.string(),
   "amountKobo": zod.number().int(),
-  "status": zod.string(),
+  "status": zod.enum(['pending', 'completed', 'rejected', 'failed']),
   "reference": zod.string(),
   "createdAt": zod.coerce.date()
+}),
+  "authorizationUrl": zod.string().url()
 })
 
 
@@ -349,13 +458,53 @@ export const CreateOrderResponse = zod.object({
 export const ListMyOrdersResponseItem = zod.object({
   "id": zod.number().int(),
   "userId": zod.string(),
-  "courseId": zod.number().int(),
+  "courseId": zod.number().int().nullable(),
+  "productCode": zod.string(),
+  "productName": zod.string(),
+  "paymentProvider": zod.string(),
   "amountKobo": zod.number().int(),
-  "status": zod.string(),
+  "status": zod.enum(['pending', 'completed', 'rejected', 'failed']),
   "reference": zod.string(),
   "createdAt": zod.coerce.date()
 })
 export const ListMyOrdersResponse = zod.array(ListMyOrdersResponseItem)
+
+
+/**
+ * @summary Verify a Paystack payment before granting access
+ */
+export const VerifyOrderPaymentParams = zod.object({
+  "reference": zod.coerce.string()
+})
+
+export const VerifyOrderPaymentResponse = zod.object({
+  "id": zod.number().int(),
+  "userId": zod.string(),
+  "courseId": zod.number().int().nullable(),
+  "productCode": zod.string(),
+  "productName": zod.string(),
+  "paymentProvider": zod.string(),
+  "amountKobo": zod.number().int(),
+  "status": zod.enum(['pending', 'completed', 'rejected', 'failed']),
+  "reference": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Receive signed Paystack payment events
+ */
+export const ReceivePaystackWebhookHeader = zod.object({
+  "Paystack-Signature": zod.string().optional(),
+  "x-paystack-signature": zod.string().optional()
+})
+
+export const ReceivePaystackWebhookBody = zod.object({
+  "event": zod.string(),
+  "data": zod.record(zod.string(), zod.unknown())
+})
+
+export const ReceivePaystackWebhookResponse = zod.unknown()
 
 
 /**

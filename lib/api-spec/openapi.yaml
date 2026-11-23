@@ -366,6 +366,128 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Lesson"
+  /admin/integrations:
+    get:
+      operationId: listAdminIntegrations
+      tags: [admin]
+      summary: List provider configuration status without exposing credentials
+      responses:
+        "200":
+          description: Provider settings and masked configuration status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationSettingsResponse"
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not an admin
+  /admin/integrations/{providerId}:
+    put:
+      operationId: saveAdminIntegration
+      tags: [admin]
+      summary: Add or rotate an encrypted provider credential
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/IntegrationProviderId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntegrationCredentialInput"
+      responses:
+        "200":
+          description: Provider credential saved; a rotated key must be tested again
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationSetting"
+        "400":
+          description: Invalid provider configuration
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not an admin or cross-origin request
+    patch:
+      operationId: updateAdminIntegration
+      tags: [admin]
+      summary: Enable or disable a configured provider
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/IntegrationProviderId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntegrationToggleInput"
+      responses:
+        "200":
+          description: Updated provider status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationSetting"
+        "400":
+          description: Provider must be configured and tested before it can be enabled
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not an admin or cross-origin request
+        "404":
+          description: Provider configuration not found
+    delete:
+      operationId: deleteAdminIntegration
+      tags: [admin]
+      summary: Remove an encrypted provider credential
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/IntegrationProviderId"
+      responses:
+        "204":
+          description: Provider credential removed
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not an admin or cross-origin request
+        "404":
+          description: Provider configuration not found
+  /admin/integrations/{providerId}/test:
+    post:
+      operationId: testAdminIntegration
+      tags: [admin]
+      summary: Test a provider credential without returning it
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/IntegrationProviderId"
+      responses:
+        "200":
+          description: Credential test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationTestResult"
+        "400":
+          description: Provider credential cannot be tested this way
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not an admin or cross-origin request
+        "404":
+          description: Provider configuration not found
   /orders:
     post:
       operationId: createOrder
@@ -824,11 +946,78 @@ components:
     OrderInput:
       type: object
       properties:
+        email:
+          type: string
+          format: email
+          maxLength: 320
         courseId:
           type: integer
         productCode:
           type: string
           enum: [jewellery-masterclass]
+    IntegrationProviderId:
+      type: string
+      enum: [paystack, paystack_webhook, resend, openrouter, openai, anthropic, gemini, mistral, deepseek]
+    IntegrationSetting:
+      type: object
+      required: [providerId, label, category, description, configured, enabled, status, lastTestedAt, updatedAt, senderEmail, canTest]
+      properties:
+        providerId:
+          $ref: "#/components/schemas/IntegrationProviderId"
+        label:
+          type: string
+        category:
+          type: string
+          enum: [payments, notifications, ai]
+        description:
+          type: string
+        configured:
+          type: boolean
+        enabled:
+          type: boolean
+        status:
+          type: string
+          enum: [not_configured, unverified, connected, error]
+        lastTestedAt:
+          type: ["string", "null"]
+          format: date-time
+        updatedAt:
+          type: ["string", "null"]
+          format: date-time
+        senderEmail:
+          type: ["string", "null"]
+          format: email
+        canTest:
+          type: boolean
+    IntegrationSettingsResponse:
+      type: array
+      items:
+        $ref: "#/components/schemas/IntegrationSetting"
+    IntegrationCredentialInput:
+      type: object
+      properties:
+        apiKey:
+          type: string
+          minLength: 8
+          maxLength: 4096
+        senderEmail:
+          type: string
+          format: email
+          maxLength: 320
+    IntegrationToggleInput:
+      type: object
+      required: [enabled]
+      properties:
+        enabled:
+          type: boolean
+    IntegrationTestResult:
+      type: object
+      required: [success, message]
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
     OrderCheckout:
       type: object
       required: [order, authorizationUrl]

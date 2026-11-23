@@ -86,18 +86,124 @@ export interface UpdateLessonBody {
   isPreview?: boolean;
 }
 
-export interface CreateOrderBody {
-  courseId: number;
+export type OrderInputProductCode = typeof OrderInputProductCode[keyof typeof OrderInputProductCode];
+
+
+export const OrderInputProductCode = {
+  'jewellery-masterclass': 'jewellery-masterclass',
+} as const;
+
+export interface OrderInput {
+  courseId?: number;
+  productCode?: OrderInputProductCode;
 }
+
+export type IntegrationProviderId = typeof IntegrationProviderId[keyof typeof IntegrationProviderId];
+
+
+export const IntegrationProviderId = {
+  paystack: 'paystack',
+  paystack_webhook: 'paystack_webhook',
+  resend: 'resend',
+  openrouter: 'openrouter',
+  openai: 'openai',
+  anthropic: 'anthropic',
+  gemini: 'gemini',
+  mistral: 'mistral',
+  deepseek: 'deepseek',
+} as const;
+
+export type IntegrationSettingCategory = typeof IntegrationSettingCategory[keyof typeof IntegrationSettingCategory];
+
+
+export const IntegrationSettingCategory = {
+  payments: 'payments',
+  notifications: 'notifications',
+  ai: 'ai',
+} as const;
+
+export type IntegrationSettingStatus = typeof IntegrationSettingStatus[keyof typeof IntegrationSettingStatus];
+
+
+export const IntegrationSettingStatus = {
+  not_configured: 'not_configured',
+  unverified: 'unverified',
+  connected: 'connected',
+  error: 'error',
+} as const;
+
+export interface IntegrationSetting {
+  providerId: IntegrationProviderId;
+  label: string;
+  category: IntegrationSettingCategory;
+  description: string;
+  configured: boolean;
+  enabled: boolean;
+  status: IntegrationSettingStatus;
+  /** @nullable */
+  lastTestedAt: string | null;
+  /** @nullable */
+  updatedAt: string | null;
+  /** @nullable */
+  senderEmail: string | null;
+  canTest: boolean;
+}
+
+export type IntegrationSettingsResponse = IntegrationSetting[];
+
+export interface IntegrationCredentialInput {
+  /**
+     * @minLength 8
+     * @maxLength 4096
+     */
+  apiKey?: string;
+  /** @maxLength 320 */
+  senderEmail?: string;
+}
+
+export interface IntegrationToggleInput {
+  enabled: boolean;
+}
+
+export interface IntegrationTestResult {
+  success: boolean;
+  message: string;
+}
+
+export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
+
+
+export const OrderStatus = {
+  pending: 'pending',
+  completed: 'completed',
+  rejected: 'rejected',
+  failed: 'failed',
+} as const;
 
 export interface Order {
   id: number;
   userId: string;
-  courseId: number;
+  /** @nullable */
+  courseId: number | null;
+  productCode: string;
+  productName: string;
+  paymentProvider: string;
   amountKobo: number;
-  status: string;
+  status: OrderStatus;
   reference: string;
   createdAt: string;
+}
+
+export interface OrderCheckout {
+  order: Order;
+  authorizationUrl: string;
+}
+
+export type PaystackWebhookInputData = { [key: string]: unknown };
+
+export interface PaystackWebhookInput {
+  event: string;
+  data: PaystackWebhookInputData;
 }
 
 export interface AuthUser {

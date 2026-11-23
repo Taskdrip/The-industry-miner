@@ -25,3 +25,4 @@ export * from "./lessons";
 export * from "./orders";
 export * from "./resources";
 export * from "./websites";
+export * from "./integrations";

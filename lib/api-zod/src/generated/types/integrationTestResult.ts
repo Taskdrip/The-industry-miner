@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface CreateOrderBody {
-  courseId: number;
+export interface IntegrationTestResult {
+  success: boolean;
+  message: string;
 }
