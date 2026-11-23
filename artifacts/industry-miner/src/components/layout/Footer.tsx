@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import logoUrl from "@assets/brand/logo.png";
-import { Facebook, Twitter, Instagram, Linkedin, Youtube } from "lucide-react";
+import { Facebook, Twitter, Instagram, Linkedin, Youtube, ArrowUpRight } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -12,6 +12,10 @@ export default function Footer() {
             <p className="mb-6 max-w-sm">
               Empowering Entrepreneurs on their journey to Success. Knowledge is power. We give entrepreneurs expert-led masterclasses, toolkits, and mentorship.
             </p>
+            <div className="footer-feature-links">
+              <Link href="/jewellery-community" data-testid="link-footer-jewellery-community">Jewellery Community <ArrowUpRight size={14} /></Link>
+              <Link href="/domains" data-testid="link-footer-domains">Domains & website launch <ArrowUpRight size={14} /></Link>
+            </div>
             <div className="flex items-center gap-4">
               <a href="#" className="hover:text-primary transition-colors"><Facebook size={20} /></a>
               <a href="#" className="hover:text-primary transition-colors"><Twitter size={20} /></a>
@@ -24,9 +28,10 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4 uppercase tracking-wider text-sm">Platform</h4>
             <ul className="space-y-3">
-              <li><a href="#" className="hover:text-white transition-colors">Masterclasses</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Toolkits</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Mentorship</a></li>
+              <li><Link href="/#masterclasses" data-testid="link-footer-masterclasses" className="hover:text-white transition-colors">Masterclasses</Link></li>
+              <li><Link href="/#toolkits" data-testid="link-footer-toolkits" className="hover:text-white transition-colors">Toolkits & library</Link></li>
+              <li><Link href="/#mentorship" data-testid="link-footer-mentorship" className="hover:text-white transition-colors">Mentorship</Link></li>
+              <li><Link href="/studio" data-testid="link-footer-studio" className="hover:text-white transition-colors">Website Studio</Link></li>
               <li><a href="#" className="hover:text-white transition-colors">Funding Access</a></li>
             </ul>
           </div>
@@ -36,7 +41,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+              <li><a href="mailto:support@theindustryminer.com" data-testid="link-footer-contact" className="hover:text-white transition-colors">Contact us</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
             </ul>
           </div>

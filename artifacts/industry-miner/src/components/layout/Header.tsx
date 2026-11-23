@@ -16,6 +16,8 @@ import AuthModal from "@/components/auth/AuthModal";
 
 const discoveryLinks = [
   { href: "/studio", title: "Website Studio", description: "Launch a website built for your kind of business.", icon: PanelsTopLeft, label: "Build" },
+  { href: "/domains", title: "Domains & launch", description: "Plan a domain and website launch with our team.", icon: ArrowUpRight, label: "Launch" },
+  { href: "/jewellery-community", title: "Jewellery Community", description: "Practical support for jewellery entrepreneurs and makers.", icon: Gem, label: "Community" },
   { href: "#masterclasses", title: "Masterclasses", description: "Learn directly from people doing the work.", icon: BookOpen, label: "Learn" },
   { href: "#toolkits", title: "Practical resources", description: "Field-tested tools for your next move.", icon: LibraryBig, label: "Apply" },
   { href: "#mentorship", title: "Mentorship", description: "Get a sharper perspective on the hard parts.", icon: UsersRound, label: "Grow" },
@@ -75,6 +77,8 @@ export default function Header() {
           </button>
           <Link href="#courses" data-testid="link-courses-nav" className="landing-nav-link text-[12px] font-semibold transition-colors">Course library</Link>
           <Link href="#mentorship" data-testid="link-mentorship-nav" className="landing-nav-link text-[12px] font-semibold transition-colors">Mentorship</Link>
+          <Link href="/jewellery-community" data-testid="link-jewellery-community-nav" className="landing-nav-link text-[12px] font-semibold transition-colors">Jewellery community</Link>
+          <Link href="/domains" data-testid="link-domains-nav" className="landing-nav-link text-[12px] font-semibold transition-colors">Domains</Link>
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
@@ -156,6 +160,8 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="absolute left-0 right-0 top-full border-t border-[#e3e4dc] bg-[#f8f7f1] px-5 pb-6 pt-3 shadow-lg lg:hidden">
           <Link href="/studio" data-testid="link-mobile-studio" onClick={dismissMobile} className="flex items-center justify-between border-b border-[#e5e5dc] py-4 text-[13px] font-bold text-[#214d42]">Website Studio <ArrowUpRight className="h-4 w-4" /></Link>
+          <Link href="/jewellery-community" data-testid="link-mobile-jewellery-community" onClick={dismissMobile} className="flex items-center justify-between border-b border-[#e5e5dc] py-4 text-[13px] font-semibold text-[#354c43]">Jewellery community <Gem className="h-4 w-4 text-[#b88752]" /></Link>
+          <Link href="/domains" data-testid="link-mobile-domains" onClick={dismissMobile} className="flex items-center justify-between border-b border-[#e5e5dc] py-4 text-[13px] font-semibold text-[#354c43]">Domains & launch <ArrowUpRight className="h-4 w-4" /></Link>
           <button type="button" data-testid="button-mobile-masterclasses" onClick={() => setMasterclassOpen((open) => !open)} aria-expanded={masterclassOpen} className="flex w-full items-center justify-between py-4 text-left text-[13px] font-semibold text-[#354c43]">
             Masterclasses <ChevronDown className={`h-4 w-4 transition-transform ${masterclassOpen ? "rotate-180" : ""}`} />
           </button>

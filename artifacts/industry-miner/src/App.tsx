@@ -12,6 +12,8 @@ import CourseViewer from "@/pages/course-viewer";
 import WebsiteStudio from "@/pages/website-studio";
 import WebsiteEditor from "@/pages/website-editor";
 import PublicWebsite from "@/pages/public-website";
+import JewelleryCommunity from "@/pages/jewellery-community";
+import Domains from "@/pages/domains";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +21,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/jewellery-community" component={JewelleryCommunity} />
+      <Route path="/domains" component={Domains} />
       <Route path="/course/:id" component={CourseDetails} />
       <Route path="/jewellery-masterclass" component={JewelleryMasterclass} />
       <Route path="/admin" component={AdminPage} />

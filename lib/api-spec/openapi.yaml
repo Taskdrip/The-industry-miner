@@ -370,24 +370,26 @@ paths:
     post:
       operationId: createOrder
       tags: [orders]
-      summary: Create a pending Naira payment order to enroll in a course
+      summary: Create a Paystack bank-transfer checkout for a course or jewellery masterclass
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateOrderBody"
+              $ref: "#/components/schemas/OrderInput"
       responses:
         "201":
-          description: Order created
+          description: Order and Paystack checkout created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Order"
+                $ref: "#/components/schemas/OrderCheckout"
         "401":
           description: Not authenticated
         "404":
           description: Course not found
+        "503":
+          description: Paystack checkout is not configured
     get:
       operationId: listMyOrders
       tags: [orders]
@@ -403,6 +405,59 @@ paths:
                   $ref: "#/components/schemas/Order"
         "401":
           description: Not authenticated
+  /orders/{reference}/verify:
+    post:
+      operationId: verifyOrderPayment
+      tags: [orders]
+      summary: Verify a Paystack payment before granting access
+      parameters:
+        - name: reference
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current verified order status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "401":
+          description: Not authenticated
+        "404":
+          description: Order not found
+        "502":
+          description: Paystack could not verify the transaction
+  /paystack/webhook:
+    post:
+      operationId: receivePaystackWebhook
+      tags: [orders]
+      summary: Receive signed Paystack payment events
+      parameters:
+        - name: Paystack-Signature
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: x-paystack-signature
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaystackWebhookInput"
+      responses:
+        "200":
+          description: Event accepted
+        "401":
+          description: Invalid webhook signature
+        "503":
+          description: Paystack is not configured
   /site-templates:
     get:
       operationId: listSiteTemplates
@@ -766,19 +821,32 @@ components:
           type: integer
         isPreview:
           type: boolean
-    CreateOrderBody:
+    OrderInput:
       type: object
-      required:
-        - courseId
       properties:
         courseId:
           type: integer
+        productCode:
+          type: string
+          enum: [jewellery-masterclass]
+    OrderCheckout:
+      type: object
+      required: [order, authorizationUrl]
+      properties:
+        order:
+          $ref: "#/components/schemas/Order"
+        authorizationUrl:
+          type: string
+          format: uri
     Order:
       type: object
       required:
         - id
         - userId
         - courseId
+        - productCode
+        - productName
+        - paymentProvider
         - amountKobo
         - status
         - reference
@@ -789,16 +857,32 @@ components:
         userId:
           type: string
         courseId:
-          type: integer
+          type: ["integer", "null"]
+        productCode:
+          type: string
+        productName:
+          type: string
+        paymentProvider:
+          type: string
         amountKobo:
           type: integer
         status:
           type: string
+          enum: [pending, completed, rejected, failed]
         reference:
           type: string
         createdAt:
           type: string
           format: date-time
+    PaystackWebhookInput:
+      type: object
+      required: [event, data]
+      properties:
+        event:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
     AuthUser:
       type: object
       required: [id, email, firstName, lastName, profileImageUrl, role]
