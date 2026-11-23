@@ -403,6 +403,163 @@ paths:
                   $ref: "#/components/schemas/Order"
         "401":
           description: Not authenticated
+  /site-templates:
+    get:
+      operationId: listSiteTemplates
+      tags: [websites]
+      summary: List available website templates
+      responses:
+        "200":
+          description: Available starter templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SiteTemplate"
+  /websites:
+    get:
+      operationId: listMyWebsites
+      tags: [websites]
+      summary: List the current user's websites
+      parameters:
+        - $ref: "#/components/parameters/AuthorizationSessionHeader"
+        - $ref: "#/components/parameters/SessionCookie"
+      responses:
+        "200":
+          description: Websites owned by the current user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Website"
+        "401":
+          description: Not authenticated
+    post:
+      operationId: installWebsiteTemplate
+      tags: [websites]
+      summary: Create a website from a starter template
+      parameters:
+        - $ref: "#/components/parameters/AuthorizationSessionHeader"
+        - $ref: "#/components/parameters/SessionCookie"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebsiteInstallInput"
+      responses:
+        "201":
+          description: Installed website
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Website"
+        "400":
+          description: Invalid request or template
+        "401":
+          description: Not authenticated
+  /websites/{slug}:
+    get:
+      operationId: getMyWebsite
+      tags: [websites]
+      summary: Get an owned website and its draft
+      parameters:
+        - $ref: "#/components/parameters/WebsiteSlug"
+        - $ref: "#/components/parameters/AuthorizationSessionHeader"
+        - $ref: "#/components/parameters/SessionCookie"
+      responses:
+        "200":
+          description: Website owned by the current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Website"
+        "401":
+          description: Not authenticated
+        "404":
+          description: Website not found
+  /websites/{slug}/draft:
+    put:
+      operationId: saveWebsiteDraft
+      tags: [websites]
+      summary: Save changes to an owned website draft
+      parameters:
+        - $ref: "#/components/parameters/WebsiteSlug"
+        - $ref: "#/components/parameters/AuthorizationSessionHeader"
+        - $ref: "#/components/parameters/SessionCookie"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebsiteDraftInput"
+      responses:
+        "200":
+          description: Updated draft
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Website"
+        "400":
+          description: Invalid website content
+        "401":
+          description: Not authenticated
+        "404":
+          description: Website not found
+  /websites/{slug}/publish:
+    post:
+      operationId: publishWebsite
+      tags: [websites]
+      summary: Publish the current draft for an owned website
+      parameters:
+        - $ref: "#/components/parameters/WebsiteSlug"
+        - $ref: "#/components/parameters/AuthorizationSessionHeader"
+        - $ref: "#/components/parameters/SessionCookie"
+      responses:
+        "200":
+          description: Published website
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Website"
+        "401":
+          description: Not authenticated
+        "404":
+          description: Website not found
+  /published-websites/{slug}:
+    get:
+      operationId: getPublishedWebsite
+      tags: [websites]
+      summary: Get the public version of a published website
+      parameters:
+        - $ref: "#/components/parameters/WebsiteSlug"
+      responses:
+        "200":
+          description: Public website content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublishedWebsite"
+        "404":
+          description: Website is not published
+  /website-manifests/{slug}:
+    get:
+      operationId: getWebsiteManifest
+      tags: [websites]
+      summary: Get the install manifest for a published website
+      parameters:
+        - $ref: "#/components/parameters/WebsiteSlug"
+      responses:
+        "200":
+          description: PWA manifest for the published website
+          content:
+            application/manifest+json:
+              schema:
+                $ref: "#/components/schemas/WebsiteManifest"
+        "404":
+          description: Website is not published
 components:
   parameters:
     AuthorizationSessionHeader:
@@ -419,6 +576,14 @@ components:
       description: Browser session cookie.
       schema:
         type: string
+    WebsiteSlug:
+      name: slug
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 100
   schemas:
     HealthStatus:
       type: object
@@ -755,4 +920,228 @@ components:
           type: number
         expertInstructors:
           type: integer
+    SiteTemplate:
+      type: object
+      required: [slug, name, niche, description, previewImage, features, document]
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        niche:
+          type: string
+        description:
+          type: string
+        previewImage:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        document:
+          $ref: "#/components/schemas/WebsiteDocument"
+    WebsiteInstallInput:
+      type: object
+      required: [templateSlug]
+      properties:
+        templateSlug:
+          type: string
+          minLength: 1
+          maxLength: 80
+        name:
+          type: string
+          minLength: 2
+          maxLength: 60
+    WebsiteDraftInput:
+      type: object
+      required: [name, document]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 60
+        document:
+          $ref: "#/components/schemas/WebsiteDocument"
+    Website:
+      type: object
+      required: [id, ownerId, templateSlug, slug, name, draft, published, createdAt, updatedAt, publishedAt]
+      properties:
+        id:
+          type: integer
+        ownerId:
+          type: string
+        templateSlug:
+          type: string
+        slug:
+          type: string
+        name:
+          type: string
+        draft:
+          $ref: "#/components/schemas/WebsiteDocument"
+        published:
+          oneOf:
+            - $ref: "#/components/schemas/WebsiteDocument"
+            - type: "null"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        publishedAt:
+          type: ["string", "null"]
+          format: date-time
+    PublishedWebsite:
+      type: object
+      required: [templateSlug, slug, name, document, publishedAt]
+      properties:
+        templateSlug:
+          type: string
+        slug:
+          type: string
+        name:
+          type: string
+        document:
+          $ref: "#/components/schemas/WebsiteDocument"
+        publishedAt:
+          type: string
+          format: date-time
+    WebsiteDocument:
+      type: object
+      required: [appName, tagline, logoUrl, primaryColor, accentColor, backgroundColor, textColor, font, footerText, pages]
+      properties:
+        appName:
+          type: string
+          minLength: 2
+          maxLength: 60
+        tagline:
+          type: string
+          maxLength: 180
+        logoUrl:
+          type: ["string", "null"]
+          maxLength: 2048
+        primaryColor:
+          type: string
+          pattern: "^#[0-9A-Fa-f]{6}$"
+        accentColor:
+          type: string
+          pattern: "^#[0-9A-Fa-f]{6}$"
+        backgroundColor:
+          type: string
+          pattern: "^#[0-9A-Fa-f]{6}$"
+        textColor:
+          type: string
+          pattern: "^#[0-9A-Fa-f]{6}$"
+        font:
+          type: string
+          enum: [modern, editorial, friendly]
+        footerText:
+          type: string
+          maxLength: 300
+        pages:
+          type: array
+          minItems: 1
+          maxItems: 12
+          items:
+            $ref: "#/components/schemas/WebsitePage"
+    WebsitePage:
+      type: object
+      required: [slug, title, sections]
+      properties:
+        slug:
+          type: string
+          pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          maxLength: 60
+        title:
+          type: string
+          minLength: 1
+          maxLength: 60
+        sections:
+          type: array
+          maxItems: 12
+          items:
+            $ref: "#/components/schemas/WebsiteSection"
+    WebsiteSection:
+      type: object
+      required: [id, type, enabled, heading, body, imageUrl, buttonLabel, buttonHref, items]
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 80
+        type:
+          type: string
+          enum: [hero, features, about, services, gallery, testimonials, contact]
+        enabled:
+          type: boolean
+        heading:
+          type: string
+          maxLength: 120
+        body:
+          type: string
+          maxLength: 1200
+        imageUrl:
+          type: ["string", "null"]
+          maxLength: 2048
+        buttonLabel:
+          type: ["string", "null"]
+          maxLength: 60
+        buttonHref:
+          type: ["string", "null"]
+          maxLength: 2048
+        items:
+          type: array
+          maxItems: 12
+          items:
+            $ref: "#/components/schemas/WebsiteSectionItem"
+    WebsiteSectionItem:
+      type: object
+      required: [heading, body, imageUrl]
+      properties:
+        heading:
+          type: string
+          maxLength: 100
+        body:
+          type: string
+          maxLength: 500
+        imageUrl:
+          type: ["string", "null"]
+          maxLength: 2048
+    WebsiteManifest:
+      type: object
+      required: [id, name, short_name, start_url, scope, display, background_color, theme_color, icons]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        short_name:
+          type: string
+        start_url:
+          type: string
+        scope:
+          type: string
+        display:
+          type: string
+          enum: [standalone]
+        background_color:
+          type: string
+        theme_color:
+          type: string
+        icons:
+          type: array
+          items:
+            $ref: "#/components/schemas/WebsiteManifestIcon"
+    WebsiteManifestIcon:
+      type: object
+      required: [src, sizes, type, purpose]
+      properties:
+        src:
+          type: string
+        sizes:
+          type: string
+        type:
+          type: string
+        purpose:
+          type: string
 
