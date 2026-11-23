@@ -9,6 +9,7 @@ import adminRouter from "./admin";
 import ordersRouter from "./orders";
 import resourcesRouter from "./resources";
 import websitesRouter from "./websites";
+import integrationsRouter from "./integrations";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(adminRouter);
 router.use(ordersRouter);
 router.use(resourcesRouter);
 router.use(websitesRouter);
+router.use(integrationsRouter);
 
 export default router;

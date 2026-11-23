@@ -5,23 +5,9 @@ import { ArrowDown, ArrowUpRight, BookOpen, Gem, Lightbulb, UsersRound } from "l
 
 function JewelleryIllustration() {
   return (
-    <div className="jewel-art" role="img" aria-label="Original line illustration of jewellery: a pendant, ring and maker's tools">
+    <div className="jewel-art jewel-photo">
+      <img src="/images/jewellery-community.jpg" alt="A pearl necklace presented in a box, a close-up of jewellery craft and presentation" data-testid="img-community-hero" />
       <span className="jewel-art-index">THE MAKER'S TABLE / 01</span>
-      <svg viewBox="0 0 570 570" aria-hidden="true" className="jewel-art-svg">
-        <circle cx="285" cy="285" r="220" fill="none" stroke="#a9b9a9" strokeWidth="1" />
-        <circle cx="285" cy="285" r="190" fill="none" stroke="#c2cbbd" strokeWidth="1" strokeDasharray="2 9" />
-        <path d="M188 148c15 89 33 149 97 206 62-57 82-117 97-206" fill="none" stroke="#31594b" strokeWidth="5" strokeLinecap="round" />
-        <path d="M258 332l27 31 28-31-28-34z" fill="#d98461" stroke="#31594b" strokeWidth="3" strokeLinejoin="round" />
-        <path d="M270 332h30m-15-34v65" stroke="#f4e9d5" strokeWidth="2" />
-        <circle cx="285" cy="330" r="5" fill="#f4e9d5" />
-        <ellipse cx="363" cy="226" rx="29" ry="39" transform="rotate(36 363 226)" fill="none" stroke="#d98461" strokeWidth="6" />
-        <path d="M115 375l126-9m-109 31 98-8m-82 29 70-7" stroke="#31594b" strokeWidth="3" strokeLinecap="round" />
-        <path d="M130 370l-16 25m36-26-12 24" stroke="#d98461" strokeWidth="3" />
-        <path d="M390 374c24-30 54-42 77-37m-60 56c20-18 38-22 59-17" fill="none" stroke="#31594b" strokeWidth="3" strokeLinecap="round" />
-        <path d="M95 225h58m-29-29v58m321 104h44m-22-22v44" stroke="#b4c0b2" strokeWidth="1" />
-        <circle cx="285" cy="110" r="5" fill="#d98461" />
-        <circle cx="465" cy="286" r="4" fill="#d98461" />
-      </svg>
       <div className="jewel-art-note"><span>FORM / CRAFT / TRADE</span><strong>Make the work.<br />Build the business.</strong></div>
       <span className="jewel-art-caption">PRACTICAL SUPPORT FOR<br />JEWELLERY ENTREPRENEURS</span>
     </div>
@@ -60,6 +46,11 @@ export default function JewelleryCommunity() {
           <span className="landing-section-label">For the person behind the pieces</span>
           <h2>Good work deserves a business built to carry it.</h2>
           <p>From the first idea to a growing jewellery brand, the practical side of business matters. The Jewellery Community brings learning and resources together to help you make thoughtful progress, develop your craft into a venture, and keep building with a clearer view of what comes next.</p>
+        </section>
+        <section className="community-photo-story" aria-label="The craft and the business">
+          <div><span className="landing-section-label">The work behind the work</span><h2>From a first piece to a business with a point of view.</h2></div>
+          <img src="/images/jewellery-community.jpg" alt="Pearl necklace resting in its presentation box" />
+          <p>The Jewellery Community is a place to return to practical business and jewellery resources as your ideas, practice and business evolve. Build with a clearer view of what comes next.</p>
         </section>
         <section className="community-resources" id="community-resources">
           <div className="community-resources-head">

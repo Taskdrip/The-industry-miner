@@ -69,6 +69,37 @@ function IndustryMinerStory() {
   );
 }
 
+function JewelleryCommunityFeature() {
+  return (
+    <section className="home-jewellery" aria-labelledby="home-jewellery-title" data-testid="section-home-jewellery">
+      <div className="home-jewellery-image">
+        <img src="/images/jewellery-community.jpg" alt="Pearl necklace in a presentation box, representing the craft and care behind a jewellery business" />
+        <span>THE JEWELLERY COMMUNITY / 01</span>
+      </div>
+      <div className="home-jewellery-copy">
+        <span className="landing-section-label">A place for jewellery makers</span>
+        <h2 id="home-jewellery-title">Make the work.<br /><em>Build the business.</em></h2>
+        <p>One year of practical business and jewellery resources for entrepreneurs, makers and growing jewellery brands. Learn about the work behind the craft, find fresh perspective and keep building at your own pace.</p>
+        <div className="home-jewellery-meta"><strong>01 YEAR</strong><span>Practical learning, brought together in one place.</span></div>
+        <Link href="/jewellery-community" data-testid="link-home-jewellery-community" className="landing-studio-link">Explore the Jewellery Community <ArrowUpRight size={16} /></Link>
+      </div>
+    </section>
+  );
+}
+
+function PublishedWebsiteFeature() {
+  return (
+    <section className="home-pwa">
+      <div className="home-pwa-label"><PanelsTopLeft size={18} /><span>WEBSITE STUDIO / PUBLISHED WEBSITES</span></div>
+      <div className="home-pwa-main">
+        <div><span className="landing-section-label">Build, publish, keep growing</span><h2>Your website can travel<br />with your business.</h2></div>
+        <p>Choose a template for your industry, shape the pages around your offer and publish an installable progressive web app (PWA). Custom domain mapping and external hosting are separate services and are not yet available.</p>
+        <Link href="/studio" data-testid="link-home-pwa-studio" className="landing-cta-primary">Explore Website Studio <ArrowUpRight size={16} /></Link>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <div className="landing-shell min-h-[100dvh] flex flex-col font-sans">
@@ -77,7 +108,9 @@ export default function Home() {
         <HeroSlider />
         <WebsiteStudioFeature />
         <IndustryMinerStory />
+        <JewelleryCommunityFeature />
         <TrustBar />
+        <PublishedWebsiteFeature />
         <div id="toolkits">
           <WhatWeOffer />
         </div>

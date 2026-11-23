@@ -9,9 +9,10 @@ import {
   PlusCircle, ChevronDown, ChevronRight, Lock, Loader2, BookOpen,
   Video, CheckCircle2, Trash2, Gem, Pencil, Save, X, ExternalLink,
   FileText, Download, Link2, File, FolderOpen, LayoutList,
-  ShoppingBag, CheckCheck, XCircle, Clock,
+  ShoppingBag, CheckCheck, XCircle, Clock, Settings2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 
 const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "").replace(/\/[^/]*$/, "") + "/api";
 
@@ -954,6 +955,9 @@ export default function AdminPage() {
             <p className="text-muted-foreground text-sm ml-11">
               Manage your courses, modules, and lessons. Click any course to expand it.
             </p>
+            <Link href="/admin/integrations" data-testid="link-admin-integrations" className="mt-5 ml-11 inline-flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-accent">
+              <Settings2 className="h-4 w-4" /> Provider integrations
+            </Link>
           </div>
 
           {!courses || courses.length === 0 ? (

@@ -64,10 +64,10 @@ const curriculumParts = [
 
 // ─── Supporting data ─────────────────────────────────────────────────────────
 const bonuses = [
-  { icon: "📖", label: "Business Plan Template", desc: "A professionally structured roadmap to help you clarify your strategy and growth path." },
-  { icon: "✅", label: "Jewellery Business Checklist", desc: "Ensure every critical element of your business is set up and running efficiently." },
-  { icon: "📦", label: "Trusted Supplier & Shipping Agent", desc: "Get direct access to a vetted all-in-one supplier and shipping agent." },
-  { icon: "🏆", label: "Certificate of Completion", desc: "Showcase your commitment to business excellence upon finishing the programme." },
+  { icon: "01", label: "Business Plan Template", desc: "A structured starting point to clarify your strategy and growth path." },
+  { icon: "02", label: "Jewellery Business Checklist", desc: "A practical checklist for the important elements of setting up your business." },
+  { icon: "03", label: "Supplier & Shipping Resources", desc: "Supplier and shipping resources included with the programme." },
+  { icon: "04", label: "Certificate of Completion", desc: "A certificate of completion for learners who finish the programme." },
 ];
 
 const painPoints = [
@@ -86,17 +86,10 @@ const forWho = [
   { title: "Existing Business Owners", desc: "You want to add a jewellery line or take your current shop to the next level." },
 ];
 
-const testimonials = [
-  { initials: "IC", name: "Ifeoma C.", color: "#C9A14A", quote: "This masterclass changed everything for me. Within 6 weeks I had my first 10 customers and made back my investment 3×. The supplier contacts alone are worth triple the price!" },
-  { initials: "SO", name: "Sarah O.", color: "#8B7355", quote: "I was completely lost before this. Now I have a proper brand, a pricing strategy, and I'm making consistent sales every week. The business masterclass videos are pure gold." },
-  { initials: "DM", name: "Damilola M.", color: "#D4AF7A", quote: "The step-by-step approach is exactly what I needed. I started with zero experience and now I'm running a profitable jewellery business from home. Highly recommended!" },
-];
-
 const faqs = [
   { q: "Do I need prior experience to join?", a: "Absolutely not. This masterclass is designed for complete beginners and experienced jewellery lovers alike. We start from the very foundation and build up systematically." },
   { q: "How long do I have access to the materials?", a: "You receive a full 1-year subscription, giving you 12 months of unlimited access to all 24 video lessons, all bonuses, and any new content added during the year. Revisit any module at your own pace." },
-  { q: "How soon can I start making money?", a: "Students have reported making their first sales within days of completing Part I. With the right strategy and our vetted supplier contacts, results come fast." },
-  { q: "Is this only for people in Nigeria?", a: "Not at all. The strategies apply globally. We have students across Africa, the UK, the US, and beyond running profitable jewellery businesses." },
+  { q: "Is this only for people in Nigeria?", a: "The programme is designed for jewellery entrepreneurs and makers in Nigeria and elsewhere. Review the curriculum to decide whether its topics fit your market and goals." },
   { q: "What exactly is included in the ₦100,000 subscription?", a: "You get: 24 in-depth video lessons across 3 structured parts, a Business Plan Template, a Jewellery Business Checklist, direct access to vetted suppliers and shipping agents, a Certificate of Completion, and full 1-year access to all course materials and updates." },
 ];
 
@@ -180,11 +173,6 @@ export default function JewelleryMasterclass() {
     <div className="min-h-screen bg-[#070707] text-white masterclass-page" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       <Header />
 
-      {/* Urgency Banner */}
-      <div className="bg-gradient-to-r from-amber-800 via-amber-500 to-amber-800 text-black text-center py-2.5 px-4 text-xs font-bold tracking-wide">
-        🔥 LIMITED SEATS — Registration closes soon · Only <strong>17 spots</strong> remaining
-      </div>
-
       {/* ── Hero ── */}
       <section className="relative overflow-hidden pt-28 pb-24 px-4">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(201,161,74,0.07),transparent)]" />
@@ -209,28 +197,14 @@ export default function JewelleryMasterclass() {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Build a Jewellery Brand That Prints Money
+              Build a jewellery business with stronger foundations.
             </h1>
 
             <p className="text-white/60 text-lg leading-relaxed mb-10 max-w-lg" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 300 }}>
-              Zero experience? No problem. Go from beginner to boss with proven strategies that show you how to start, brand and sell jewellery profitably.
+              Explore practical lessons on starting, structuring and growing a jewellery business, from business foundations to operations and leadership.
             </p>
 
-            {/* Social proof row */}
-            <div className="flex flex-wrap items-center gap-5 mb-10">
-              <div className="flex items-center gap-1.5">
-                <span className="text-amber-400 tracking-tight">★★★★★</span>
-                <span className="text-white font-semibold text-sm">4.9</span>
-                <span className="text-white/35 text-sm">/ 5</span>
-              </div>
-              <div className="w-px h-4 bg-white/15" />
-              <span className="text-white/60 text-sm"><strong className="text-white font-semibold">500+</strong> students enrolled</span>
-              <div className="w-px h-4 bg-white/15" />
-              <div className="flex items-center gap-1.5 text-white/60 text-sm">
-                <Calendar className="w-3.5 h-3.5 text-amber-400" />
-                <strong className="text-white font-semibold">1-Year</strong> full access
-              </div>
-            </div>
+            <div className="flex items-center gap-2 mb-8 text-white/55 text-sm"><Calendar className="w-4 h-4 text-amber-400" /><strong className="text-white">1-year access</strong> to course materials.</div>
 
             {/* Price card */}
             <div className="inline-flex items-stretch bg-white/[0.04] border border-amber-400/20 rounded-2xl overflow-hidden mb-10">
@@ -255,7 +229,7 @@ export default function JewelleryMasterclass() {
             {/* Subscription note */}
             <div className="flex items-center gap-2 mb-8 text-white/50 text-sm">
               <Shield className="w-4 h-4 text-amber-400 flex-shrink-0" />
-              1-Year Subscription · 30-Day Money-Back Guarantee · Secure Checkout
+              One-year subscription · Checkout handled by the payment provider
             </div>
 
             {/* CTA */}
@@ -266,7 +240,7 @@ export default function JewelleryMasterclass() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-black font-bold text-base uppercase tracking-wider px-10 py-5 rounded-full transition-all duration-200 shadow-[0_8px_40px_rgba(201,161,74,0.3)]"
               >
-                🚀 Register Now — ₦{PRICE_NAIRA.toLocaleString("en-NG")}
+                Register — ₦{PRICE_NAIRA.toLocaleString("en-NG")}
               </a>
             </div>
 
@@ -285,14 +259,14 @@ export default function JewelleryMasterclass() {
           <div className="relative hidden lg:block">
             <div className="absolute inset-[-16px] bg-gradient-to-br from-amber-400/10 to-transparent rounded-3xl blur-2xl" />
             <img
-              src="https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=700&q=80"
+              src="/images/jewellery-community.jpg"
               alt="TIM Jewellery Masterclass"
               className="w-full rounded-3xl shadow-[0_40px_100px_rgba(0,0,0,0.7)] object-cover relative z-10 aspect-[4/5]"
             />
             {/* Floating badge */}
             <div className="absolute -bottom-4 -left-6 bg-[#111] border border-amber-400/30 rounded-2xl px-5 py-4 shadow-xl z-20">
-              <div className="text-amber-400 font-black text-2xl" style={{ fontFamily: "'Cormorant Garamond', serif" }}>500+</div>
-              <div className="text-white/60 text-xs mt-0.5 font-medium">Students Enrolled</div>
+              <div className="text-amber-400 font-black text-2xl" style={{ fontFamily: "'Cormorant Garamond', serif" }}>24</div>
+              <div className="text-white/60 text-xs mt-0.5 font-medium">Curriculum lessons</div>
             </div>
           </div>
         </div>
@@ -302,8 +276,6 @@ export default function JewelleryMasterclass() {
       <section className="border-y border-white/08 bg-[#0c0c0c] py-12 px-4">
         <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
-            { stat: "500+", label: "Students Enrolled" },
-            { stat: "4.9 / 5", label: "Average Rating" },
             { stat: "24", label: "Video Lessons" },
             { stat: "1 Year", label: "Full Access" },
           ].map(({ stat, label }) => (
@@ -340,7 +312,7 @@ export default function JewelleryMasterclass() {
             {bonuses.map((b) => (
               <div key={b.label} className="group bg-[#0f0f0f] border border-white/[0.08] hover:border-amber-400/25 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-200 hover:-translate-y-0.5">
                 <div className="flex items-start justify-between">
-                  <div className="w-11 h-11 bg-amber-400/08 border border-amber-400/15 rounded-xl flex items-center justify-center text-xl flex-shrink-0">
+                <div className="w-11 h-11 bg-amber-400/08 border border-amber-400/15 rounded-xl flex items-center justify-center text-xs font-bold tracking-wider flex-shrink-0">
                     {b.icon}
                   </div>
                   <span className="text-[9px] font-black text-amber-400 bg-amber-400/08 border border-amber-400/15 px-2.5 py-1 rounded-full uppercase tracking-wider">FREE</span>
@@ -393,7 +365,7 @@ export default function JewelleryMasterclass() {
 
           <div className="bg-gradient-to-br from-amber-400/08 to-amber-400/03 border border-amber-400/25 rounded-2xl p-8">
             <p className="text-lg text-white/85 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: "1.2rem" }}>
-              <strong className="text-amber-400">This masterclass is the exact roadmap</strong> that transforms aspiring jewellery lovers into profitable business owners — even if you're starting from absolute zero.
+              <strong className="text-amber-400">A structured learning resource</strong> for aspiring jewellery entrepreneurs and makers who want to understand the business behind their craft.
             </p>
           </div>
         </div>
@@ -418,12 +390,9 @@ export default function JewelleryMasterclass() {
             className="block relative rounded-3xl overflow-hidden border border-amber-400/15 shadow-[0_0_80px_rgba(201,161,74,0.10)] group"
           >
             <img
-              src="https://img.youtube.com/vi/qw9t_YRZgX0/maxresdefault.jpg"
+              src="/images/jewellery-community.jpg"
               alt="Masterclass Preview"
               className="w-full block"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900&q=80";
-              }}
             />
             <div className="absolute inset-0 bg-black/45 flex items-center justify-center group-hover:bg-black/35 transition-colors">
               <div className="w-20 h-20 bg-amber-400 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(201,161,74,0.5)] group-hover:scale-110 transition-transform duration-200">
@@ -515,44 +484,8 @@ export default function JewelleryMasterclass() {
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-black font-bold text-base uppercase tracking-wider px-12 py-5 rounded-full transition-all shadow-[0_8px_40px_rgba(201,161,74,0.25)]"
           >
-            Join the Masterclass →
+            Join the Masterclass
           </a>
-        </div>
-      </section>
-
-      {/* ── Testimonials ── */}
-      <section className="py-24 px-4 bg-[#0a0a0a] border-y border-white/05">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-3 text-amber-400 text-[11px] font-bold uppercase tracking-[0.15em] mb-5">
-            <span className="w-10 h-px bg-amber-400/30" />Student Results<span className="w-10 h-px bg-amber-400/30" />
-          </div>
-          <h2
-            className="text-4xl md:text-5xl mb-3"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700 }}
-          >
-            Real Students. Real Results.
-          </h2>
-          <p className="text-white/35 text-sm mb-12">★★★★★ Rated 4.9 from 500+ students</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-left">
-            {testimonials.map((t) => (
-              <div key={t.name} className="bg-[#0f0f0f] border border-white/08 rounded-2xl p-6 flex flex-col gap-4">
-                <div className="flex gap-0.5 text-amber-400 text-sm">★★★★★</div>
-                <p className="text-white/60 text-sm leading-relaxed italic flex-1" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem" }}>
-                  "{t.quote}"
-                </p>
-                <div className="flex items-center gap-3 border-t border-white/06 pt-4">
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center font-black text-xs text-black flex-shrink-0"
-                    style={{ background: t.color }}
-                  >
-                    {t.initials}
-                  </div>
-                  <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">{t.name}</span>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -579,7 +512,7 @@ export default function JewelleryMasterclass() {
       {/* ── Final CTA ── */}
       <section className="py-28 px-4 bg-gradient-to-b from-[#070707] to-[#0d0800]">
         <div className="max-w-2xl mx-auto text-center">
-          <div className="text-6xl mb-8">💎</div>
+          <div className="text-xs uppercase tracking-[0.2em] text-amber-400 mb-8">The business behind the craft</div>
           <h2
             className="mb-5 leading-tight"
             style={{
@@ -594,7 +527,7 @@ export default function JewelleryMasterclass() {
             Your Jewellery Empire Starts Today
           </h2>
           <p className="text-white/50 text-lg mb-10 leading-relaxed" style={{ fontWeight: 300 }}>
-            Join 500+ students already building profitable jewellery businesses. Don't let another month go by wondering "what if".
+            Explore the course structure and decide whether the programme is the right next step for your jewellery business.
           </p>
 
           {/* Price display */}
@@ -621,10 +554,10 @@ export default function JewelleryMasterclass() {
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-black font-bold text-lg uppercase tracking-wider px-14 py-6 rounded-full transition-all duration-200 shadow-[0_12px_50px_rgba(201,161,74,0.35)]"
             >
-              🚀 Claim My Spot Now
+              Join the Masterclass
             </a>
             <p className="text-white/25 text-xs">
-              1-Year Subscription · 30-Day Money-Back Guarantee · Secure Checkout
+              One-year subscription · Checkout handled by the payment provider
             </p>
           </div>
         </div>

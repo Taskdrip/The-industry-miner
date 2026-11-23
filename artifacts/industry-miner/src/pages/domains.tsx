@@ -50,8 +50,8 @@ export default function Domains() {
               <div className="domains-browser-bar"><i></i><i></i><i></i><span>your-business</span></div>
               <div className="domains-browser-page"><small>YOUR NAME, YOUR SPACE</small><strong>A business<br />worth finding.</strong><span className="domains-browser-button"></span><div className="domains-browser-landscape"><span></span><b></b></div></div>
             </div>
-            <div className="domains-float domain-float-one">.com.ng <Check size={13} /></div>
-            <div className="domains-float domain-float-two"><LockKeyhole size={14} /> SSL / SECURITY</div>
+            <div className="domains-float domain-float-one">GLOBAL / .NG OPTIONS</div>
+            <div className="domains-float domain-float-two"><LockKeyhole size={14} /> SSL / PROVIDER PENDING</div>
             <span className="domains-visual-caption">A DIGITAL HOME, BUILT AROUND YOUR BUSINESS</span>
           </div>
         </section>
