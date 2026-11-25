@@ -551,6 +551,96 @@ paths:
           description: Order not found
         "502":
           description: Paystack could not verify the transaction
+  /domains/search:
+    get:
+      operationId: searchDomains
+      tags: [domains]
+      summary: Check availability and pricing for a full domain name
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 253
+      responses:
+        "200":
+          description: Registrar availability and price result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DomainSearchResult"
+        "400":
+          description: Invalid domain name
+        "503":
+          description: NiceNIC domain search is not configured
+  /my-domains:
+    get:
+      operationId: listMyDomains
+      tags: [domains]
+      summary: List domains and registration status for the current user
+      responses:
+        "200":
+          description: The current user's domain registrations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DomainPurchase"
+        "401":
+          description: Not authenticated
+  /domain-orders:
+    post:
+      operationId: createDomainOrder
+      tags: [domains]
+      summary: Create a Paystack checkout for one or more domains
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DomainOrderInput"
+      responses:
+        "201":
+          description: Domain order and Paystack checkout created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DomainOrderCheckout"
+        "400":
+          description: Invalid order or unavailable domain
+        "401":
+          description: Not authenticated
+        "409":
+          description: A domain in the cart already has an active order
+        "503":
+          description: Domain registrar, exchange rate, or Paystack is not configured
+  /domain-orders/{reference}/verify:
+    post:
+      operationId: verifyDomainOrderPayment
+      tags: [domains]
+      summary: Verify a domain checkout and register paid domains
+      parameters:
+        - name: reference
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Verified order and current registration results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DomainOrderVerification"
+        "401":
+          description: Not authenticated
+        "404":
+          description: Domain order not found
+        "502":
+          description: Paystack could not verify the transaction
   /paystack/webhook:
     post:
       operationId: receivePaystackWebhook
@@ -957,10 +1047,10 @@ components:
           enum: [jewellery-masterclass]
     IntegrationProviderId:
       type: string
-      enum: [paystack, paystack_webhook, resend, openrouter, openai, anthropic, gemini, mistral, deepseek]
+      enum: [paystack, paystack_webhook, nicenic, resend, openrouter, openai, anthropic, gemini, mistral, deepseek]
     IntegrationSetting:
       type: object
-      required: [providerId, label, category, description, configured, enabled, status, lastTestedAt, updatedAt, senderEmail, canTest]
+      required: [providerId, label, category, description, configured, enabled, status, lastTestedAt, updatedAt, senderEmail, usdToNgnRate, canTest]
       properties:
         providerId:
           $ref: "#/components/schemas/IntegrationProviderId"
@@ -968,7 +1058,7 @@ components:
           type: string
         category:
           type: string
-          enum: [payments, notifications, ai]
+          enum: [payments, domains, notifications, ai]
         description:
           type: string
         configured:
@@ -987,6 +1077,9 @@ components:
         senderEmail:
           type: ["string", "null"]
           format: email
+        usdToNgnRate:
+          type: ["number", "null"]
+          minimum: 0
         canTest:
           type: boolean
     IntegrationSettingsResponse:
@@ -1004,6 +1097,10 @@ components:
           type: string
           format: email
           maxLength: 320
+        usdToNgnRate:
+          type: number
+          minimum: 1
+          maximum: 100000
     IntegrationToggleInput:
       type: object
       required: [enabled]
@@ -1018,6 +1115,146 @@ components:
           type: boolean
         message:
           type: string
+    DomainSearchResult:
+      type: object
+      required: [domain, availability, registrationPrice, renewalPrice, currency, registrationAmountKobo, renewalAmountKobo, isPremium, message]
+      properties:
+        domain:
+          type: string
+        availability:
+          type: string
+          enum: [available, unavailable, error]
+        registrationPrice:
+          type: ["number", "null"]
+        renewalPrice:
+          type: ["number", "null"]
+        currency:
+          type: ["string", "null"]
+        registrationAmountKobo:
+          type: ["integer", "null"]
+        renewalAmountKobo:
+          type: ["integer", "null"]
+        isPremium:
+          type: ["boolean", "null"]
+        message:
+          type: ["string", "null"]
+    DomainOrderInput:
+      type: object
+      required: [domains, registrant]
+      properties:
+        domains:
+          type: array
+          minItems: 1
+          maxItems: 5
+          items:
+            $ref: "#/components/schemas/DomainOrderItemInput"
+        registrant:
+          $ref: "#/components/schemas/DomainRegistrantInput"
+    DomainOrderItemInput:
+      type: object
+      required: [domain]
+      properties:
+        domain:
+          type: string
+          minLength: 3
+          maxLength: 253
+        websiteSlug:
+          type: string
+          maxLength: 120
+    DomainRegistrantInput:
+      type: object
+      required: [name, email, country, state, city, address, postcode, phone]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 16
+        organization:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 320
+        country:
+          type: string
+          minLength: 2
+          maxLength: 2
+          pattern: "^[A-Za-z]{2}$"
+        state:
+          type: string
+          minLength: 1
+          maxLength: 255
+        city:
+          type: string
+          minLength: 1
+          maxLength: 255
+        address:
+          type: string
+          minLength: 1
+          maxLength: 255
+        postcode:
+          type: string
+          minLength: 4
+          maxLength: 10
+        phone:
+          type: string
+          minLength: 7
+          maxLength: 30
+        documentType:
+          type: string
+          enum: [PASSNO, OTHIDV, OTHORG]
+        documentNumber:
+          type: string
+          maxLength: 40
+    DomainOrderCheckout:
+      type: object
+      required: [order, authorizationUrl]
+      properties:
+        order:
+          $ref: "#/components/schemas/Order"
+        authorizationUrl:
+          type: string
+          format: uri
+    DomainPurchase:
+      type: object
+      required: [id, domain, websiteSlug, websiteName, status, amountKobo, renewalAmountKobo, expiresOn, statusMessage, orderReference, createdAt]
+      properties:
+        id:
+          type: integer
+        domain:
+          type: string
+        websiteSlug:
+          type: ["string", "null"]
+        websiteName:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [awaiting_payment, registering, pending_confirmation, registered, registration_failed, refund_pending, refunded, cancelled]
+        amountKobo:
+          type: integer
+        renewalAmountKobo:
+          type: ["integer", "null"]
+        expiresOn:
+          type: ["string", "null"]
+          format: date
+        statusMessage:
+          type: ["string", "null"]
+        orderReference:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    DomainOrderVerification:
+      type: object
+      required: [order, domains]
+      properties:
+        order:
+          $ref: "#/components/schemas/Order"
+        domains:
+          type: array
+          items:
+            $ref: "#/components/schemas/DomainPurchase"
     OrderCheckout:
       type: object
       required: [order, authorizationUrl]

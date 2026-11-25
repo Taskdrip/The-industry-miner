@@ -1,4 +1,4 @@
-import { boolean, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const integrationCredentialsTable = pgTable("integration_credentials", {
   id: serial("id").primaryKey(),
@@ -7,6 +7,7 @@ export const integrationCredentialsTable = pgTable("integration_credentials", {
   iv: varchar("iv", { length: 32 }).notNull(),
   authTag: varchar("auth_tag", { length: 32 }).notNull(),
   senderEmail: varchar("sender_email", { length: 320 }),
+  usdToNgnRateKobo: integer("usd_to_ngn_rate_kobo"),
   enabled: boolean("enabled").notNull().default(false),
   connectionStatus: varchar("connection_status", { length: 24 }).notNull().default("unverified"),
   lastTestedAt: timestamp("last_tested_at", { withTimezone: true }),
